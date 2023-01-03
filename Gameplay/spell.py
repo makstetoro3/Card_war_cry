@@ -6,7 +6,9 @@ from card import Card
 # hero - объект класса player - PLAYER_1
 def d1(**kwargs):
     if kwargs['enemy'].active_cards[0][kwargs['me'].land]:
-        kwargs['enemy'].active_cards[0][kwargs['me'].land].take(len(kwargs['enemy'].hand), *kwargs)
+        kwargs['enemy'].active_cards[0][kwargs['me'].land].take(len(kwargs['enemy'].hand),
+                                                                enemy=kwargs['enemy'], me=kwargs['me'],
+                                                                hero=kwargs['hero'])
     else:
         kwargs['enemy'].HP -= len(kwargs['enemy'].hand)
 
@@ -23,15 +25,20 @@ def p3(**kwargs):
 
 
 def s4(**kwargs):
-    if kwargs['hero'].hand: list(kwargs['hero'].hand)[0].dead(False)
+    if kwargs['hero'].hand: list(kwargs['hero'].hand)[0].dead(True)
+    [a.location(n,
+                (kwargs['hand_rect'].x + int(kwargs['sard_w'] * 0.125),
+                 kwargs['hand_rect'].y + int(kwargs['sard_w'] * 0.125)),
+                (kwargs['sard_w'], kwargs['sard_h']), kwargs['slider']) for n, a in enumerate(kwargs['hero'].hand)]
     card = kwargs['hero'].active_cards[0]
     if card[kwargs['me'].land] and kwargs['me'].land > 0 and not card[kwargs['me'].land - 1]:
         card[kwargs['me'].land - 1] = card[kwargs['me'].land]
-        card[kwargs['me'].land].move(True)
+        card[kwargs['me'].land].moving(True)
         card[kwargs['me'].land] = None
     elif card[kwargs['me'].land] and kwargs['me'].land < 3 and not card[kwargs['me'].land + 1]:
         card[kwargs['me'].land + 1] = card[kwargs['me'].land]
         card[kwargs['me'].land] = None
+
 
 
 def p6(**kwargs):
@@ -101,7 +108,7 @@ def p14(**kwargs):
 
 def f15(**kwargs):
     from random import randint
-    card = list(kwargs['enemy'].cemetery)[randint(0, len(list(kwargs['enemy'].cemetery)) - 1)]
+    card = list(kwargs['enemy'].cemetery)[randint(0, len(list(kwargs['enemy'].cemetery)))]
     kwargs['enemy'].cards.remove(card)
     kwargs['hero'].hand.add(card)
     card.location(len(kwargs['hero'].hand) - 1, (kwargs['hand_rect'].x + int(kwargs['sard_w'] * 0.125),
@@ -172,7 +179,7 @@ def s31(**kwargs):
 
 
 def p32(**kwargs):
-    for i in list(filter(lambda x: x.move, list(kwargs['hero'].active_cards[0]))):
+    for i in list(filter(lambda x: x.moving(True), list(filter(None, list(kwargs['hero'].active_cards[0]))))):
         i.atc += 2
 
 

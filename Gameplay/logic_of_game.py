@@ -20,7 +20,8 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
     deck_2 = ((W >> 1) - int(card_w * 2.85), (H >> 1) - card_h)
     cemetery_2 = ((W >> 1) - int(card_w * 3.7), (H >> 1) - card_h)
     rect_attack = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) - sard_w, card_w << 2, sard_w)
-    rect_floop = pg.Rect((W >> 1) - (card_w >> 1), (H >> 1) + card_h, card_w << 2, sard_w)
+    rect_floop = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) + card_h, card_w << 2, sard_w)
+    rect_floop_building = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) + card_h - sard_w, card_w << 2, sard_w)
     btn_end = pg.Rect((sard_h >> 2, H - (sard_w >> 1)), (card_h, sard_h >> 2))
     size_rect_x = sard_w // 20 * 4.75 + (W >> 1)
     size_rect_y = sard_h // 7
@@ -42,8 +43,8 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
     hp_pos_2 = ((W >> 1) + int(card_w * 3.15), sard_w)
     count_card_pos = ((W >> 1) + int(card_w * 2.55), sard_w)
 
-    bg = pg.transform.scale(pg.image.load("data/bg.png"), size)  # фон и атрибуты игры
-    deck_card = pg.transform.scale(pg.image.load("cards/back.png"), (sard_w, sard_h))
+    bg = pg.transform.scale(pg.image.load("../data/bg.png"), size)  # фон и атрибуты игры
+    deck_card = pg.transform.scale(pg.image.load("../cards/back.png"), (sard_w, sard_h))
     btn_deck = pg.Rect(*deck, sard_w, sard_h)
     # Расположение существ на полях
     rect_card = ([pg.Rect(size_rect_x + card_w * (1 - i), size_rect_y + (H >> 1), sard_w, sard_h) for i in range(4)],
@@ -113,11 +114,19 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
             card.atc = card.default_atc
             if card.passive_spell: card.passive_spell(enemy=PLAYER_2, hero=PLAYER_1, me=card,
                                                       sard_h=sard_h, sard_w=sard_w, hand_rect=hand_rect)
+        for card in list(filter(None, list(PLAYER_2.active_cards[0]))):
+            card.hp = card.relative_hp
+            card.atc = card.default_atc
+            if card.passive_spell: card.passive_spell(enemy=PLAYER_1, hero=PLAYER_2, me=card,
+                                                      sard_h=sard_h, sard_w=sard_w, hand_rect=hand_rect)
         for card in list(filter(None, list(PLAYER_1.active_cards[1]))):
             if card.passive_spell: card.passive_spell(enemy=PLAYER_2, hero=PLAYER_1, me=card,
                                                       sard_h=sard_h, sard_w=sard_w, hand_rect=hand_rect)
+        for card in list(filter(None, list(PLAYER_2.active_cards[1]))):
+            if card.passive_spell: card.passive_spell(enemy=PLAYER_1, hero=PLAYER_2, me=card,
+                                                      sard_h=sard_h, sard_w=sard_w, hand_rect=hand_rect)
         [card.specifications() for card in PLAYER_1.active_cards[0] if card]
-        [card.specifications() for card in PLAYER_1.active_cards[1] if card]
+        [card.specifications() for card in PLAYER_2.active_cards[0] if card]
 
         while runGame and timeee:
             if not cem_win:
@@ -144,17 +153,19 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                 pg.draw.rect(screen, (100, 0, 0), btn_end)
                 pg.draw.circle(screen, (200, 0, 0), hp_pos_2, sard_h >> 2)  # 2 игрок
                 pg.draw.circle(screen, (100, 0, 0), hp_pos_2, sard_h >> 2, 10)
-                font = pg.font.Font('data/base.ttf', 48)
+                font = pg.font.Font('../data/base.ttf', 48)
                 screen.blit(font.render(str(PLAYER_1.HP), True, (25, 25, 20)), (hp_pos[0] * 0.8, hp_pos[1] * 0.97))
                 screen.blit(font.render(str(PLAYER_1.action), True, (25, 25, 20)),
                             (action_pos[0] * 0.93, action_pos[1] * 0.97))
                 screen.blit(font.render(str(PLAYER_2.HP), True, (25, 25, 20)), (hp_pos_2[0] * 0.98, hp_pos_2[1] * 0.83))
                 screen.blit(font.render(str(len(PLAYER_2.hand)), True, (25, 25, 20)),
                             (count_card_pos[0] * 0.98, count_card_pos[1] * 0.83))
-                [i.draw(screen, 0, case_1=(-size_rect_x + (W >> 1), -size_rect_y),
-                        case_2=((W >> 1) - size_rect_x, -size_rect_y + sard_w)) for i in cards]
-                [i.draw(screen, 180, case_1=((W >> 1) - size_rect_x, size_rect_y + sard_h - sard_w),
-                        case_2=((W >> 1) - size_rect_x, size_rect_y + sard_h - (sard_w << 1))) for i in PLAYER_2.cards]
+                [i.draw(screen, 0, case_10=(-size_rect_x + (W >> 1), -size_rect_y),
+                        case_20=((W >> 1) - size_rect_x, -size_rect_y + sard_w),
+                        case_21=((W >> 1) - size_rect_x, 0)) for i in cards]
+                [i.draw(screen, 180, case_10=((W >> 1) - size_rect_x, size_rect_y + sard_h - sard_w),
+                        case_20=((W >> 1) - size_rect_x, size_rect_y + sard_h - (sard_w << 1)),
+                        case_21=((W >> 1) - size_rect_x, +sard_h - sard_w)) for i in PLAYER_2.cards]
                 [i.drawing(hand, (hand_rect.x, hand_rect.y)) for i in cards_on_hand]
                 screen.blit(hand, hand_rect)
                 if PLAYER_1.cemetery: screen.blit(list(PLAYER_1.cemetery)[-1].image, cemetery)
@@ -163,13 +174,13 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                 if cur:
                     screen.blit(cur.image, cur.rect)
                 if pg.key.get_pressed()[pg.K_LALT]:
-                    [screen.blit(card.alt(pg.image.load(f'cards/{card.id}.png'), (card_w * 3, H)),
+                    [screen.blit(card.alt(pg.image.load(f'../cards/{card.id}.png'), (card_w * 3, H)),
                                  pg.Rect((W >> 1) - card_w * 1.5, 0, card_w * 3, H)) for card in cards
                      if card.rect.collidepoint(pg.mouse.get_pos())]
-                    [screen.blit(card.alt(pg.image.load(f'cards/{card.id}.png'), (card_w * 3, H)),
+                    [screen.blit(card.alt(pg.image.load(f'../cards/{card.id}.png'), (card_w * 3, H)),
                                  pg.Rect((W >> 1) - card_w * 1.5, 0, card_w * 3, H)) for card in cards_on_hand
                      if card.rect.collidepoint(pg.mouse.get_pos())]
-                    [screen.blit(card.alt(pg.image.load(f'cards/{card.id}.png'), (card_w * 3, H)),
+                    [screen.blit(card.alt(pg.image.load(f'../cards/{card.id}.png'), (card_w * 3, H)),
                                  pg.Rect((W >> 1) - card_w * 1.5, 0, card_w * 3, H)) for card in PLAYER_2.cards
                      if card.rect.collidepoint(pg.mouse.get_pos())]
 
@@ -196,7 +207,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                                             PLAYER_1.action -= cur.price
                                             cards_on_hand.remove(cur)
                                             if cur.spawn_spell: cur.spawn_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1,
-                                                                                hand_rect=hand_rect,
+                                                                                hand_rect=hand_rect, slider=slider,
                                                                                 sard_w=sard_w, sard_h=sard_h)
                                             [a.location(n,
                                                         (hand_rect.x + int(sard_w * 0.125),
@@ -204,18 +215,19 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                                                         (sard_w, sard_h), slider) for n, a in enumerate(cards_on_hand)]
                                             if play[cur.object][i]:
                                                 # сброс
-                                                play[cur.object][i].dead_spell(enemy=PLAYER_2, me=play[cur.object][i],
-                                                                               hero=PLAYER_1)
+                                                if spell := play[cur.object][i].dead_spell:
+                                                    spell(enemy=PLAYER_2, me=play[cur.object][i], hero=PLAYER_1)
                                                 play[cur.object][i].dead()
                                             play[cur.object][i] = cur
                                             recalculation(PLAYER_1, PLAYER_2, hand_rect=hand_rect, sard_w=sard_w,
                                                           sard_h=sard_h)
                                 if count_turn > 1:
-                                    if cur.object == 0 and rect_attack.colliderect(cur.rect) and cur.status == 2:
+                                    if cur.object == 0 and rect_attack.colliderect(cur.rect) and cur.status == 2 and \
+                                            (not PLAYER_2.active_cards[0][cur.land] or PLAYER_2.active_cards[0][
+                                                cur.land].can_take):
                                         cur.case = 1
                                         cur.status = 1
-                                        if PLAYER_2.active_cards[0][cur.land] and \
-                                                PLAYER_2.active_cards[0][cur.land].can_take:
+                                        if PLAYER_2.active_cards[0][cur.land]:
                                             cur.take(
                                                 PLAYER_2.active_cards[0][cur.land].take(cur.atc,
                                                                                         enemy=PLAYER_1,
@@ -226,6 +238,13 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                                             PLAYER_2.HP -= cur.atc
                                     if cur.object == 0 and rect_floop.colliderect(cur.rect) and cur.status == 2 and \
                                             cur.floop and PLAYER_1.action >= cur.floop_price:
+                                        cur.case = 2
+                                        cur.status = 1
+                                        cur.floop_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1, hand_rect=hand_rect,
+                                                        sard_w=sard_w, sard_h=sard_h)
+                                        PLAYER_1.action -= cur.floop_price
+                                    if cur.object == 1 and rect_floop_building.colliderect(cur.rect) and \
+                                            cur.status == 2 and cur.floop and PLAYER_1.action >= cur.floop_price:
                                         cur.case = 2
                                         cur.status = 1
                                         cur.floop_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1, hand_rect=hand_rect,
@@ -282,7 +301,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                     now_cem.draw(cem_win_sur)
                     screen.blit(cem_win_sur, cem_win_rect)
                     if pg.key.get_pressed()[pg.K_LALT]:
-                        [screen.blit(card.alt(pg.image.load(f'cards/{card.id}.png'), (card_w * 3, H)),
+                        [screen.blit(card.alt(pg.image.load(f'../cards/{card.id}.png'), (card_w * 3, H)),
                                      pg.Rect((W >> 1) - card_w * 1.5, 0, card_w * 3, H)) for card in now_cem
                          if card.rect.collidepoint((pg.mouse.get_pos()[0] - cem_win_rect.x, pg.mouse.get_pos()[1]))]
                     if pg.key.get_pressed()[pg.K_BACKSPACE]:
@@ -301,4 +320,4 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
             pg.display.update()
             clock.tick(FPS)
         for i in list(filter(None, PLAYER_2.active_cards[0])):
-            i.move(False)
+            i.moving(False)

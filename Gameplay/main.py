@@ -7,7 +7,7 @@ FINN = ((13, 14, 15, 16), (40, 40, 41, 41, 28, 28, 26, 26, 31, 31, 36, 36, 37, 3
 JAKE = ((1, 2, 3, 4), (25, 25, 22, 23, 24, 1, 1, 11, 12, 12, 2, 2, 7, 7, 9, 9, 14, 14, 13, 13, 8, 8, 6, 6, 4, 3, 10,
                        5, 5, 16, 16, 18, 18, 19, 19, 17, 15, 21, 20, 20))
 size = W, H = (pg.display.Info().current_w, pg.display.Info().current_h)  # Размер экрана
-screen = pg.display.set_mode(size, pg.FULLSCREEN)
+screen = pg.display.set_mode(size)
 
 pvp(screen, W, H, [FINN, JAKE])
 

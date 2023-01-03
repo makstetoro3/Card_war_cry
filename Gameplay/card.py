@@ -9,11 +9,11 @@ class Card(pg.sprite.Sprite):  # класс Карты
         pg.sprite.Sprite.__init__(self)
         self.id = card_id
         self.land = land
-        self.image = pg.transform.scale(pg.image.load(f'cards/{card_id}.png').convert_alpha(), size)
+        self.image = pg.transform.scale(pg.image.load(f'../cards/{card_id}.png').convert_alpha(), size)
         self.pos = (0, 0)
         self.rect = pg.Rect(0, 0, *size)
         self.default: pg.Rect = self.rect
-        con = sqlite3.connect('data/card_war.db')
+        con = sqlite3.connect('../data/card_war.db')
         cur = con.cursor()
         info = cur.execute(f'SELECT * FROM cards WHERE id = {card_id}').fetchall()[0]
         self.case = 0
@@ -71,7 +71,7 @@ class Card(pg.sprite.Sprite):  # класс Карты
         self.land = -1
         self.can_take = True
         self.price = self.default_price
-        self.player.active_cards[0][self.land] = None
+        if self.object in (0, 1): self.player.active_cards[self.object][self.land] = None
         if self.object == 0:
             self.hp = self.default_hp
             self.relative_hp = self.default_hp
@@ -114,7 +114,7 @@ class Card(pg.sprite.Sprite):  # класс Карты
                          pg.Rect(size[0] * 0.819, size[1] * 0.8625, size[0] * 0.1, size[1] * 0.0721))
             pg.draw.rect(res, (255, 255, 255),
                          pg.Rect(size[0] * 0.101, size[1] * 0.863, size[0] * 0.08, size[1] * 0.0725))
-            font = pg.font.Font('data/base.ttf', 48)
+            font = pg.font.Font('../data/base.ttf', 48)
             res.blit(font.render(str(self.hp), True, (0, 0, 0)), (size[0] * 0.819, size[1] * 0.88))
             res.blit(font.render(str(self.atc), True, (0, 0, 0)), (size[0] * 0.101, size[1] * 0.88))
         return res
@@ -127,7 +127,7 @@ class Card(pg.sprite.Sprite):  # класс Карты
         pg.draw.rect(self.image, (255, 255, 255),
                      pg.Rect(w * 0.1, h * 0.87,
                              w * 0.095, h * 0.075))
-        font = pg.font.Font('data/base.ttf', 12)
+        font = pg.font.Font('../data/base.ttf', 12)
         self.image.blit(font.render(str(self.hp), True, (0, 0, 0)), (w * 0.825, h * 0.88))
         self.image.blit(font.render(str(self.atc), True, (0, 0, 0)), (w * 0.11, h * 0.88))
 
@@ -138,7 +138,7 @@ class Card(pg.sprite.Sprite):  # класс Карты
         self.specifications()
         if self.hp <= 0:
             self.player.HP += self.hp
-            if self.dead_spell: self.dead_spell(*kwargs)
+            if self.dead_spell: self.dead_spell(enemy=kwargs['enemy'], me=kwargs['me'], hero=kwargs['hero'])
             self.dead()
         return atc
 
@@ -149,13 +149,11 @@ class Card(pg.sprite.Sprite):  # класс Карты
         if self.case:
             rat += 90
             size = (self.rect.h, self.rect.w)
-            if self.case == 1:
-                pos = (pos[0] + args['case_1'][0], pos[1] + args['case_1'][1])
-            else:
-                pos = (pos[0] + args['case_2'][0], pos[1] + args['case_2'][1])
+            pos = (
+                pos[0] + args[f'case_{self.case}{self.object}'][0], pos[1] + args[f'case_{self.case}{self.object}'][1])
         image = pg.transform.rotate(self.image, rat)
         surface.blit(image, pg.Rect(*pos, *size))
 
-    def move(self, boo=True):
+    def moving(self, boo=True):
         self.move = boo
         self.move_one = boo
