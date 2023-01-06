@@ -26,7 +26,7 @@ def men(screen: pg.Surface, W: int, H: int) -> int:
         manager=manager
     )
 
-    exit = pygame_gui.elements.UIButton(
+    exit_ = pygame_gui.elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 210, H // 2 + 310), (400, 50)),
         text='Выход',
         manager=manager
@@ -49,7 +49,7 @@ def men(screen: pg.Surface, W: int, H: int) -> int:
         time_delta = clock.tick(60) / 1000.0
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                exit()
+                exit_()
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     flPause = not flPause
@@ -84,7 +84,7 @@ def men(screen: pg.Surface, W: int, H: int) -> int:
                         sound.play()
                         show = False
                         res = 1
-                    if event.ui_element == exit:
+                    if event.ui_element == exit_:
                         sound.play()
                         confirmation_dialog = pygame_gui.windows.UIConfirmationDialog(
                             rect=pg.Rect((W // 2 - 160, H // 2 + 50), (300, 200)),
