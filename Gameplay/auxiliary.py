@@ -1,15 +1,18 @@
-from pygame.mouse import get_pos
+import pygame as pg
 from player import Player
 
 
 class Button:
-    def __init__(self, rect, function):
+    def __init__(self, rect: pg.Rect, function, text=''):
         self.rect = rect
         self.func = function
+        self.text = text
 
-    def pressed(self, *args):
-        if self.rect.collidepoint(*get_pos()):
-            return self.func(*args)
+    def draw(self) -> pg.Surface:
+        res = pg.Surface(self.rect.size)
+        font = pg.font.Font('../data/base.ttf', 12)
+        res.blit(font.render(self.text, True, (0, 0, 0)), self.rect)
+        return res
 
 
 def recalculation(p1: Player, p2: Player, **kwargs):
@@ -42,3 +45,64 @@ def recalculation(p1: Player, p2: Player, **kwargs):
                                                                          hand_rect=kwargs['hand_rect'])
     [card.specifications() for card in p1.active_cards[0] if card]
     [card.specifications() for card in p2.active_cards[0] if card]
+
+
+def draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, windows, cur, sard_w,
+              sard_h, rect_card, hp_pos, action_pos, btn_end, hp_pos_2,
+              count_card_pos, size_rect_x, W, size_rect_y, cards, hand_rect,
+              cards_on_hand, cemetery, cemetery_2, card_w, H):
+    screen.blit(bg, (0, 0))  # отрисововаем фон
+    if len(PLAYER_1.pack):
+        screen.blit(deck_card, deck)
+    if len(PLAYER_2.pack):
+        screen.blit(pg.transform.rotate(deck_card, 180), deck_2)
+    PLAYER_1.land.draw(screen)
+    PLAYER_2.land.draw(screen)
+    hand.fill((50, 0, 0))
+
+    [window.draw(screen) for window in windows]
+
+    if cur and cur.status == 0 and cur.object < 2:
+        surs = pg.Surface((sard_w, sard_h), pg.SRCALPHA)  # подсветка мест
+        surs.fill((255, 255, 0, 127))
+        [screen.blit(surs, i) for i in rect_card[cur.object]]
+        [pg.draw.rect(screen, (255, 255, 0),
+                      ((i.x - sard_w * 0.05, i.y - sard_w * 0.05), (sard_w * 1.1, sard_h + sard_w * 0.1)),
+                      int(sard_w * 0.05)) for i in rect_card[cur.object]]
+    pg.draw.circle(screen, (200, 0, 0), hp_pos, sard_h >> 2)  # 1 игрок
+    pg.draw.circle(screen, (100, 0, 0), hp_pos, sard_h >> 2, 10)
+    pg.draw.circle(screen, (0, 200, 0), action_pos, sard_h >> 2)
+    pg.draw.circle(screen, (0, 100, 0), action_pos, sard_h >> 2, 10)
+    pg.draw.rect(screen, (100, 0, 0), btn_end)
+    pg.draw.circle(screen, (200, 0, 0), hp_pos_2, sard_h >> 2)  # 2 игрок
+    pg.draw.circle(screen, (100, 0, 0), hp_pos_2, sard_h >> 2, 10)
+    font = pg.font.Font('../data/base.ttf', 48)
+    screen.blit(font.render(str(PLAYER_1.HP), True, (25, 25, 20)), (hp_pos[0] * 0.8, hp_pos[1] * 0.97))
+    screen.blit(font.render(str(PLAYER_1.action), True, (25, 25, 20)),
+                (action_pos[0] * 0.93, action_pos[1] * 0.97))
+    screen.blit(font.render(str(PLAYER_2.HP), True, (25, 25, 20)), (hp_pos_2[0] * 0.98, hp_pos_2[1] * 0.83))
+    screen.blit(font.render(str(len(PLAYER_2.hand)), True, (25, 25, 20)),
+                (count_card_pos[0] * 0.98, count_card_pos[1] * 0.83))
+    [i.draw(screen, 0, case_10=(-size_rect_x + (W >> 1), -size_rect_y),
+            case_20=((W >> 1) - size_rect_x, -size_rect_y + sard_w),
+            case_21=((W >> 1) - size_rect_x, 0)) for i in cards]
+    [i.draw(screen, 180, case_10=((W >> 1) - size_rect_x, size_rect_y + sard_h - sard_w),
+            case_20=((W >> 1) - size_rect_x, size_rect_y + sard_h - (sard_w << 1)),
+            case_21=((W >> 1) - size_rect_x, +sard_h - sard_w)) for i in PLAYER_2.cards]
+    [i.drawing(hand, (hand_rect.x, hand_rect.y)) for i in cards_on_hand]
+    screen.blit(hand, hand_rect)
+    if PLAYER_1.cemetery: screen.blit(list(PLAYER_1.cemetery)[-1].image, cemetery)
+    if PLAYER_2.cemetery: screen.blit(pg.transform.rotate(list(PLAYER_2.cemetery)[-1].image, 180),
+                                      cemetery_2)
+    if cur:
+        screen.blit(cur.image, cur.rect)
+    if pg.key.get_pressed()[pg.K_LALT]:
+        [screen.blit(card.alt(pg.image.load(f'../cards/{card.id}.png'), (card_w * 3, H)),
+                     pg.Rect((W >> 1) - card_w * 1.5, 0, card_w * 3, H)) for card in cards
+         if card.rect.collidepoint(pg.mouse.get_pos())]
+        [screen.blit(card.alt(pg.image.load(f'../cards/{card.id}.png'), (card_w * 3, H)),
+                     pg.Rect((W >> 1) - card_w * 1.5, 0, card_w * 3, H)) for card in cards_on_hand
+         if card.rect.collidepoint(pg.mouse.get_pos())]
+        [screen.blit(card.alt(pg.image.load(f'../cards/{card.id}.png'), (card_w * 3, H)),
+                     pg.Rect((W >> 1) - card_w * 1.5, 0, card_w * 3, H)) for card in PLAYER_2.cards
+         if card.rect.collidepoint(pg.mouse.get_pos())]
