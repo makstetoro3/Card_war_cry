@@ -10,14 +10,12 @@ JAKE = ((1, 2, 3, 4), (25, 25, 22, 23, 24, 1, 1, 11, 12, 12, 2, 2, 7, 7, 9, 9, 1
 size = W, H = (pg.display.Info().current_w, pg.display.Info().current_h)  # Размер экрана
 screen = pg.display.set_mode(size)
 
-
 run = True
 while run:
     res = men(screen, W, H)
-    if res == 1:
-        pvp(screen, W, H, [FINN, JAKE])
-    if res == 0:
+    if res[0] == 1:
+        pvp(screen, W, H, [FINN, JAKE], [res[2], res[1]])
+    if res[0] == 0:
         run = False
-
 
 pg.quit()

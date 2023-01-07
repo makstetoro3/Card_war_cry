@@ -3,7 +3,9 @@ from random import shuffle
 
 
 class Player:
-    def __init__(self, deck: tuple):
+    def __init__(self, deck: tuple, name: str, id_: int):
+        self.name = name
+        self.id = id_
         self.HP = 25
         self.action = 2
         self.pack = list(deck[1])

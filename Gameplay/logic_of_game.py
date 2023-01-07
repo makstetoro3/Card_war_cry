@@ -8,7 +8,7 @@ from window import Window
 from random import shuffle
 
 
-def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
+def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
     size = W, H
     FPS = 30
     clock = pg.time.Clock()
@@ -21,6 +21,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
     deck = ((W >> 1) - int(card_w * 2.85), (H >> 1))
     deck_2 = ((W >> 1) - int(card_w * 2.85), (H >> 1) - card_h)
     cemetery_2 = ((W >> 1) - int(card_w * 3.7), (H >> 1) - card_h)
+    rect_attack = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) - sard_w, card_w << 2, sard_w)
     rect_floop = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) + card_h, card_w << 2, sard_w)
     rect_floop_building = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) + card_h - sard_w, card_w << 2, sard_w)
     btn_end = pg.Rect((sard_h >> 2, H - (sard_w >> 1)), (card_h, sard_h >> 2))
@@ -30,10 +31,10 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
     cem_win_sur = pg.Surface((sard_w << 3, H))
     btn_cem = pg.Rect((W >> 1) - int(card_w * 3.7), H >> 1, sard_w, sard_h)
     btn_cem_2 = pg.Rect((W >> 1) - int(card_w * 3.7), (H >> 1) - card_h, sard_w, sard_h)
-    PLAYER_1 = Player(decks.pop(randint(-1, 1)))
+    PLAYER_1 = Player(decks.pop((r := randint(-1, 1))), name.pop(r), r)
     [PLAYER_1.land.add(Land(PLAYER_1.land_id[i], ((W >> 1) - card_w * (2 - i), (H >> 1)), (card_w, card_h), 0,
                             PLAYER_1.land_activ[i])) for i in range(4)]
-    PLAYER_2 = Player(decks.pop(0))
+    PLAYER_2 = Player(decks.pop(0), name.pop(0), 1 - r)
     [PLAYER_2.land.add(
         Land(PLAYER_2.land_id[i], ((W >> 1) - card_w * (2 - i), (H >> 1) - card_h), (card_w, card_h), 180,
              PLAYER_1.land_activ[i])) for i in range(4)]
@@ -57,6 +58,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
          range(4)])
     hand = pg.Surface((int(card_w * 1.6), int(card_h * 2.1)))
     hand_rect = pg.Rect((W >> 1) + int(card_w * 2.1), (H >> 1) - sard_h, *hand.get_size())
+    win = None
     cem_win = 0
     count_turn = 0
     window = [None]
@@ -70,13 +72,14 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
               count_card_pos, size_rect_x, W, size_rect_y, PLAYER_1.cards, hand_rect,
               PLAYER_1.hand, cemetery, cemetery_2, card_w, H, card_h)
 
-    while runGame:
+    while not win and runGame:
         PLAYER_1, PLAYER_2 = PLAYER_2, PLAYER_1
         cards = PLAYER_1.cards
         play = PLAYER_1.active_cards
         cur = None
         opening = False
         count_turn += 1
+        between = True
 
         cards_on_hand = PLAYER_1.hand
         slider = 0
@@ -136,7 +139,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                                'принять', 'поменять', 0, *intermediate)
 
         while runGame and timeee:
-            if not cem_win:
+            if not cem_win and not between:
                 draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, window[0], cur, sard_w,
                           sard_h, rect_card, hp_pos, action_pos, btn_end, hp_pos_2,
                           count_card_pos, size_rect_x, W, size_rect_y, cards, hand_rect,
@@ -146,7 +149,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:  # выход из игры
                         runGame = False
-                if not window[0] and not cem_win:
+                if not window[0] and not cem_win and not between:
                     if event.type == pg.MOUSEBUTTONUP:
                         if event.button == 1:
                             if btn_cem.collidepoint(pg.mouse.get_pos()) and PLAYER_1.cemetery:
@@ -312,6 +315,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                                 cur = None
 
                 else:
+                elif not between:
                     now_cem = PLAYER_1.cemetery
                     if not opening:
                         if cem_win == 1:
@@ -340,8 +344,21 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                         if event.button == 1 and not cem_win_rect.collidepoint(pg.mouse.get_pos()):
                             cem_win = 0
                             opening = False
+                else:
+                    screen.fill((0, 0, 0))
+                    if PLAYER_1.id == 1:
+                        screen.blit(pg.transform.scale(pg.image.load('../data/Jake1.png'), (250, 450)),
+                                    (W // 2 - 120, H // 2 - 370))
+                    else:
+                        screen.blit(pg.transform.scale(pg.image.load('../data/Finn.png'), (450, 450)),
+                                    (W // 2 - 300, H // 2 - 370))
+                    font = pg.font.Font('../data/base.ttf', 64)
+                    text = font.render(PLAYER_1.name, True, (175, 25, 25))
+                    screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - (H >> 2)))
+                    if pg.key.get_pressed()[pg.K_SPACE]: between = False
                 if PLAYER_2.HP < 1 or PLAYER_1.HP < 1:
                     runGame = False
+                    win = PLAYER_1 if PLAYER_2.HP < 1 else PLAYER_2
             pg.display.update()
             clock.tick(FPS)
 
@@ -357,3 +374,21 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                     PLAYER_2.HP -= card.atc
         for i in list(filter(None, PLAYER_1.active_cards[0])):
             i.moving(False)
+    if win:
+        eee = True
+        screen.fill((0, 0, 0))
+        if PLAYER_1.id == 1:
+            screen.blit(pg.transform.scale(pg.image.load('../data/Jake1.png'), (250, 450)),
+                        (W // 2 - 120, H // 2 - 370))
+        else:
+            screen.blit(pg.transform.scale(pg.image.load('../data/Finn.png'), (450, 450)),
+                        (W // 2 - 300, H // 2 - 370))
+        font = pg.font.Font('../data/base.ttf', 64)
+        text = font.render('победитель', True, (175, 25, 25))
+        screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - (H >> 1)))
+        text = font.render(PLAYER_1.name, True, (175, 25, 25))
+        screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - (H >> 2)))
+        while eee:
+            if pg.key.get_pressed()[pg.K_SPACE]: eee = False
+            clock.tick(FPS)
+
