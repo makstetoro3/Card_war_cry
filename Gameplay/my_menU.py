@@ -1,5 +1,6 @@
 import pygame as pg
 import pygame_gui
+from To_begin import button_to_begin
 
 
 def men(screen: pg.Surface, W: int, H: int) -> int:
@@ -37,7 +38,7 @@ def men(screen: pg.Surface, W: int, H: int) -> int:
     vol = 1.0
     FPS = 60
     flPause = False
-
+    c = 0
     show = True
     clock = pg.time.Clock()
 
@@ -76,12 +77,11 @@ def men(screen: pg.Surface, W: int, H: int) -> int:
                 if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
                     print("Name:", event.text)
                     users.append(event.text)
+                    c += 1
+                    if c == 2:
+                        pass
                     print(users)
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event.ui_element == play: #кнопка играть
-                        sound.play()
-                        show = False
-                        res = 1
                     if event.ui_element == exit:    #окно выхода
                         #sound.play()
                         confirmation_dialog = pygame_gui.windows.UIConfirmationDialog(
@@ -95,6 +95,11 @@ def men(screen: pg.Surface, W: int, H: int) -> int:
                     if event.ui_element == training:          #обучение
                         sound.play()
                         hhhh(screen, W, H)
+                    if event.ui_element == play: #кнопка играть
+                        show = False
+                        # sound.play()
+                        res = 1
+                        button_to_begin(screen, W, H, bloop=1)
             manager.process_events(event)
 
         manager.update(time_delta)
@@ -304,8 +309,7 @@ def my_training2(screen: pg.Surface, W: int, H: int) -> int:                    
     manager3 = pygame_gui.UIManager((W, H))
     menu_backr3 = pg.transform.scale(pg.image.load('../data/training.png'), (W, H))
     sound3 = pg.mixer.Sound("../data/melodia.wav")
-    prim4 = pg.transform.scale(pg.image.load('../data/prim4.png'), ((W // 2) // 2 - 100, (H // 2) - 100))
-    prim5 = pg.transform.scale(pg.image.load('../data/prim5.png'), ((W // 2) // 2 - 100, (H // 2) - 100))
+    prim4 = pg.transform.scale(pg.image.load('../data/prim45.png'), ((W // 2) - 300, (H // 2) - 100))
     prim6 = pg.transform.scale(pg.image.load('../data/prim6.png'), ((W // 2) // 2 + 100, (H // 2) // 2 + 100))
 
     hhh2 = pygame_gui.elements.UIButton(
@@ -391,8 +395,7 @@ def my_training2(screen: pg.Surface, W: int, H: int) -> int:                    
         screen.blit(menu_backr3, (0, 0))
         c = W - W // 2 + 400
         k = ((W // 2) // 2 - 100)
-        screen.blit(prim4, (c, H // 2 - 380))
-        screen.blit(prim5, (c - k, H // 2 - 380))
+        screen.blit(prim4, (c - 180, H // 2 - 340))
         screen.blit(prim6, (W // 2 + 200, H // 2))
         manager3.draw_ui(screen)
         pg.display.update()

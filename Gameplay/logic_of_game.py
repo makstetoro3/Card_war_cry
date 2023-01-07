@@ -4,9 +4,11 @@ from land import Land
 from player import Player
 from random import randint
 from auxiliary import recalculation
+from To_begin import button_to_begin
 
 
 def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
+    bloop = 1
     size = W, H
     FPS = 30
     clock = pg.time.Clock()
@@ -196,6 +198,11 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                             if btn_cem_2.collidepoint(pg.mouse.get_pos()) and PLAYER_2.cemetery:
                                 cem_win = 2
                             if btn_end.collidepoint(pg.mouse.get_pos()):
+                                if bloop == 1:
+                                    bloop = 0
+                                else:
+                                    bloop = 1
+                                button_to_begin(screen, W, H, bloop)
                                 timeee = False
                             if cur:
                                 if cur.object < 2:

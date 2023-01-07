@@ -40,31 +40,31 @@ def button_to_begin(screen: pg.Surface, W: int, H: int, bloop):
 
     while show_1:
         time_delta = clock_1.tick(60) / 1000.0
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
+        for event_1 in pg.event.get():
+            if event_1.type == pg.QUIT:
                 exit()
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_F2:
+            elif event_1.type == pg.KEYDOWN:
+                if event_1.key == pg.K_F2:
                     flPause_1 = not flPause_1
                     if flPause_1:
                         pg.mixer.music.pause()
                     else:
                         pg.mixer.music.unpause()
-                elif event.key == pg.K_LEFT:
+                elif event_1.key == pg.K_LEFT:
                     vol_1 -= 0.1
                     pg.mixer.music.set_volume(vol_1)
                     print(pg.mixer.music.get_volume())
-                elif event.key == pg.K_RIGHT:
+                elif event_1.key == pg.K_RIGHT:
                     vol_1 += 0.1
                     pg.mixer.music.set_volume(vol_1)
                     print(pg.mixer.music.get_volume())
 
-            if event.type == pg.USEREVENT:
-                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event.ui_element == playing:
+            if event_1.type == pg.USEREVENT:
+                if event_1.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event_1.ui_element == playing:
                         #sound_1.play()
                         show_1 = False
-            manager_1.process_events(event)
+            manager_1.process_events(event_1)
         manager_1.update(time_delta)
         screen.blit(menu_backr_1, (0, 0))
         if bloop == 1:
