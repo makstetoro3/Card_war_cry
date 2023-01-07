@@ -375,7 +375,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
     if win:
         eee = True
         screen.fill((0, 0, 0))
-        if PLAYER_1.id == 1:
+        if win.id == 1:
             screen.blit(pg.transform.scale(pg.image.load('../data/Jake1.png'), (250, 450)),
                         (W // 2 - 120, H // 2 - 370))
         else:
@@ -383,9 +383,11 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                         (W // 2 - 300, H // 2 - 370))
         font = pg.font.Font('../data/base.ttf', 64)
         text = font.render('победитель', True, (175, 25, 25))
-        screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - (H >> 1)))
-        text = font.render(PLAYER_1.name, True, (175, 25, 25))
+        screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - H // 3))
+        text = font.render(win.name, True, (175, 25, 25))
         screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - (H >> 2)))
+        pg.display.update()
         while eee:
-            if pg.key.get_pressed()[pg.K_SPACE]: eee = False
-            clock.tick(FPS)
+            for _ in pg.event.get():
+                if pg.key.get_pressed()[pg.K_ESCAPE]: eee = False
+                clock.tick(FPS)
