@@ -17,3 +17,4 @@ class Player:
         self.land_activ = [True] * 4
         self.cemetery = pg.sprite.Group()
         self.magic = []
+        self.school = None

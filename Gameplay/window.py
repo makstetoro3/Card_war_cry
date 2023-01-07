@@ -2,11 +2,12 @@ import pygame as pg
 
 
 class Window:
-    def __init__(self, rect: pg.Rect, title: str, btn_ok: str, btn_no: str, tipe, *args):
+    def __init__(self, rect: pg.Rect, title: str, btn_ok: str, btn_no: str, tipe, *args, **kwargs):
         self.rect = rect
         self.title = title
         self.tipe = tipe
         self.cards = args
+        self.kw = kwargs
         self.btn_no = (pg.Rect(0, rect.h * 0.9, rect.w >> 1, rect.h * 0.1), btn_no)
         self.btn_ok = (pg.Rect(rect.w >> 1, rect.h * 0.9, rect.w >> 1, rect.h * 0.1), btn_ok)
 
@@ -26,4 +27,8 @@ class Window:
         text_title = font.render(self.title, True, (0, 0, 0))
         pg.draw.rect(res, (100, 100, 100), pg.Rect(0, 0, self.rect.w, (text_title.get_height() >> 1)))
         res.blit(text_title, ((self.rect.w >> 1) - (text_title.get_width() >> 1), (text_title.get_height() >> 1)))
+        for n, i in enumerate(self.cards):
+            res.blit(i.image,
+                     ((self.rect.w >> 1) - i.rect.w * ((len(self.cards) / 2) - n),
+                      (self.rect.h >> 1) - (i.rect.h >> 1)))
         screen.blit(res, self.rect)

@@ -21,6 +21,7 @@ class Card(pg.sprite.Sprite):  # класс Карты
         self.can_take = True
         self.move = False
         self.move_one = False
+        self.turn_use = 0
 
         self.status = 0  # свойство карты
         self.price = info[2]
@@ -43,7 +44,7 @@ class Card(pg.sprite.Sprite):  # класс Карты
                 self.default_hp = info[8]
                 self.relative_hp = info[8]
                 self.specifications()
-        if info[9]:
+        if info[9] or self.object == 2:
             exec(f'from spell import s{card_id}')
             exec(f'self.spawn_spell = s{card_id}')
         else:

@@ -5,6 +5,7 @@ from player import Player
 from random import randint
 from auxiliary import recalculation, draw_game
 from window import Window
+from random import shuffle
 
 
 def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
@@ -20,7 +21,6 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
     deck = ((W >> 1) - int(card_w * 2.85), (H >> 1))
     deck_2 = ((W >> 1) - int(card_w * 2.85), (H >> 1) - card_h)
     cemetery_2 = ((W >> 1) - int(card_w * 3.7), (H >> 1) - card_h)
-    rect_attack = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) - sard_w, card_w << 2, sard_w)
     rect_floop = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) + card_h, card_w << 2, sard_w)
     rect_floop_building = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) + card_h - sard_w, card_w << 2, sard_w)
     btn_end = pg.Rect((sard_h >> 2, H - (sard_w >> 1)), (card_h, sard_h >> 2))
@@ -57,22 +57,18 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
          range(4)])
     hand = pg.Surface((int(card_w * 1.6), int(card_h * 2.1)))
     hand_rect = pg.Rect((W >> 1) + int(card_w * 2.1), (H >> 1) - sard_h, *hand.get_size())
-    cem_win = False
+    cem_win = 0
     count_turn = 0
-    windows = []
-
+    window = [None]
     # for _ in range(5):
-    #     PLAYER_1.hand.add((a := Card((sard_w, sard_h), PLAYER_1.pack.pop(0), PLAYER_1)))
-    #     a.location(len(PLAYER_1.hand) - 1, (hand_rect.x + int(sard_w * 0.125),
-    #                                         hand_rect.y + int(sard_w * 0.125)), (sard_w, sard_h), 0)
     #     PLAYER_2.hand.add((a := Card((sard_w, sard_h), PLAYER_2.pack.pop(0), PLAYER_2)))
     #     a.location(len(PLAYER_2.hand) - 1, (hand_rect.x + int(sard_w * 0.125),
     #                                         hand_rect.y + int(sard_w * 0.125)), (sard_w, sard_h), 0)
 
-    draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, windows, None, sard_w,
+    draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, window[0], None, sard_w,
               sard_h, rect_card, hp_pos, action_pos, btn_end, hp_pos_2,
               count_card_pos, size_rect_x, W, size_rect_y, PLAYER_1.cards, hand_rect,
-              PLAYER_1.hand, cemetery, cemetery_2, card_w, H)
+              PLAYER_1.hand, cemetery, cemetery_2, card_w, H, card_h)
 
     while runGame:
         PLAYER_1, PLAYER_2 = PLAYER_2, PLAYER_1
@@ -136,22 +132,21 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
 
         if count_turn <= 2:
             intermediate = [Card((sard_w, sard_h), PLAYER_1.pack.pop(0), PLAYER_1) for _ in range(5)]
-            start_card_win = Window(pg.Rect((W >> 1) - (card_w << 1), 0, (card_w << 2), (H >> 1)), 'начальные карты',
-                                    'принять', 'поменять', 0)
-            windows.append(start_card_win)
+            window[0] = Window(pg.Rect((W >> 1) - (card_w << 1), 0, (card_w << 2), (H >> 1)), 'начальные карты',
+                               'принять', 'поменять', 0, *intermediate)
 
         while runGame and timeee:
             if not cem_win:
-                draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, windows, cur, sard_w,
+                draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, window[0], cur, sard_w,
                           sard_h, rect_card, hp_pos, action_pos, btn_end, hp_pos_2,
                           count_card_pos, size_rect_x, W, size_rect_y, cards, hand_rect,
-                          cards_on_hand, cemetery, cemetery_2, card_w, H)
+                          cards_on_hand, cemetery, cemetery_2, card_w, H, card_h)
 
             for event in pg.event.get():
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:  # выход из игры
                         runGame = False
-                if not cem_win and not (f_window := list(filter(lambda x: x.tipe == 0, windows))):
+                if not window[0] and not cem_win:
                     if event.type == pg.MOUSEBUTTONUP:
                         if event.button == 1:
                             if btn_cem.collidepoint(pg.mouse.get_pos()) and PLAYER_1.cemetery:
@@ -164,57 +159,66 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                                 if cur.object < 2:
                                     for i in range(4):
                                         if rect_card[cur.object][i].colliderect(
-                                                cur.rect) and cur.status < 2 and PLAYER_1.action >= cur.price:
-                                            cur.set_land(rect_card[cur.object][i].copy(), i)  # перемещаем карту
-                                            cards.add(cur)
-                                            PLAYER_1.action -= cur.price
-                                            cards_on_hand.remove(cur)
-                                            if cur.spawn_spell: cur.spawn_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1,
-                                                                                hand_rect=hand_rect, slider=slider,
-                                                                                sard_w=sard_w, sard_h=sard_h)
-                                            [a.location(n,
-                                                        (hand_rect.x + int(sard_w * 0.125),
-                                                         hand_rect.y + int(sard_w * 0.125)),
-                                                        (sard_w, sard_h), slider) for n, a in enumerate(cards_on_hand)]
-                                            if play[cur.object][i]:
-                                                # сброс
-                                                if spell := play[cur.object][i].dead_spell:
-                                                    spell(enemy=PLAYER_2, me=play[cur.object][i], hero=PLAYER_1)
-                                                play[cur.object][i].dead()
+                                                cur.rect) and ((cur.status < 2 and PLAYER_1.action >= cur.price) or
+                                                               (cur.status == 3 and not rect_card[0][i])):
+                                            if cur.status != 3:
+                                                cards.add(cur)
+                                                PLAYER_1.action -= cur.price
+                                                cards_on_hand.remove(cur)
+                                                if cur.spawn_spell:
+                                                    cur.spawn_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1,
+                                                                    hand_rect=hand_rect, slider=slider, sard_w=sard_w,
+                                                                    sard_h=sard_h, turn=count_turn, window=window)
+                                                [a.location(n,
+                                                            (hand_rect.x + int(sard_w * 0.125),
+                                                             hand_rect.y + int(sard_w * 0.125)),
+                                                            (sard_w, sard_h), slider) for n, a in
+                                                 enumerate(cards_on_hand)]
+                                                if play[cur.object][i]:
+                                                    # сброс
+                                                    if spell := play[cur.object][i].dead_spell:
+                                                        spell(enemy=PLAYER_2, me=play[cur.object][i], hero=PLAYER_1)
+                                                    play[cur.object][i].dead()
+                                            else:
+                                                play[cur.land] = None
+                                                for k in list(filter(None, PLAYER_1.active_cards[0])):
+                                                    if k.status == 3:
+                                                        k.status = 2
                                             play[cur.object][i] = cur
+                                            cur.set_land(rect_card[cur.object][i].copy(), i)  # перемещаем карту
                                             recalculation(PLAYER_1, PLAYER_2, hand_rect=hand_rect, sard_w=sard_w,
-                                                          sard_h=sard_h)
-                                if count_turn > 1:
-                                    if cur.object == 0 and rect_attack.colliderect(cur.rect) and cur.status == 2 and \
-                                            (not PLAYER_2.active_cards[0][cur.land] or PLAYER_2.active_cards[0][
-                                                cur.land].can_take):
-                                        cur.case = 1
-                                        cur.status = 1
-                                        if PLAYER_2.active_cards[0][cur.land]:
-                                            cur.take(
-                                                PLAYER_2.active_cards[0][cur.land].take(cur.atc,
-                                                                                        enemy=PLAYER_1,
-                                                                                        me=PLAYER_2.active_cards[0][
-                                                                                            cur.land], hero=PLAYER_2),
-                                                enemy=PLAYER_2, me=cur, hero=PLAYER_1)
-                                        else:
-                                            PLAYER_2.HP -= cur.atc
+                                                          sard_h=sard_h, turn=count_turn)
+                                if cur.object == 2 and pg.Rect((W >> 1) - (sard_w << 1), H >> 1, sard_w << 2,
+                                                               sard_h).colliderect(cur.rect):
+                                    PLAYER_1.magic.append(cur)
+                                    cur.spawn_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1,
+                                                    hand_rect=hand_rect, slider=slider, sard_w=sard_w,
+                                                    sard_h=sard_h, turn=count_turn, window=window)
+                                    cur.dead(True)
+                                    [a.location(n,
+                                                (hand_rect.x + int(sard_w * 0.125),
+                                                 hand_rect.y + int(sard_w * 0.125)),
+                                                (sard_w, sard_h), slider) for n, a in
+                                     enumerate(cards_on_hand)]
+                                if count_turn > 1 or (cur.object == 0 and cur.status == 3):
                                     if cur.object == 0 and rect_floop.colliderect(cur.rect) and cur.status == 2 and \
                                             cur.floop and PLAYER_1.action >= cur.floop_price:
                                         cur.case = 2
                                         cur.status = 1
+                                        cur.turn_use = count_turn
                                         cur.floop_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1, hand_rect=hand_rect,
-                                                        sard_w=sard_w, sard_h=sard_h)
+                                                        sard_w=sard_w, sard_h=sard_h, turn=count_turn)
                                         PLAYER_1.action -= cur.floop_price
                                     if cur.object == 1 and rect_floop_building.colliderect(cur.rect) and \
                                             cur.status == 2 and cur.floop and PLAYER_1.action >= cur.floop_price:
                                         cur.case = 2
                                         cur.status = 1
+                                        cur.turn_use = count_turn
                                         cur.floop_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1, hand_rect=hand_rect,
-                                                        sard_w=sard_w, sard_h=sard_h)
+                                                        sard_w=sard_w, sard_h=sard_h, turn=count_turn, window=window)
                                         PLAYER_1.action -= cur.floop_price
                                     recalculation(PLAYER_1, PLAYER_2, hand_rect=hand_rect, sard_w=sard_w,
-                                                  sard_h=sard_h)
+                                                  sard_h=sard_h, turn=count_turn)
                                 cur.zeroing()  # возращаем карту на место
                                 cur = None
                     if event.type == pg.MOUSEBUTTONDOWN:
@@ -244,16 +248,69 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                                                              and (hand_rect.collidepoint(pg.mouse.get_pos()) or
                                                                   card.status >= 2)]) != [] else None
                                 if cur:
-                                    if cur.status == 0 or cur.status == 2:
+                                    if cur.status in (0, 2, 3):
                                         # перемещение карты
                                         cur.rect.move_ip(event.rel)
                                     else:
                                         cur = None
-                elif f_window:
-                    for event in pg.event.get():
+                elif window[0]:
+                    if window[0].tipe == 0:
                         if event.type == pg.MOUSEBUTTONUP:
                             if event.button == 1:
-                                ...
+                                if window[0].btn_ok[0].collidepoint(event.pos[0] - window[0].rect.x, event.pos[1]):
+                                    for i in window[0].cards:
+                                        PLAYER_1.hand.add(i)
+                                        i.location(len(PLAYER_1.hand) - 1, (hand_rect.x + int(sard_w * 0.125),
+                                                                            hand_rect.y + int(sard_w * 0.125)),
+                                                   (sard_w, sard_h), 0)
+                                    PLAYER_1.hand.add((a := Card((sard_w, sard_h), PLAYER_1.pack.pop(0), PLAYER_1)))
+                                    a.location(len(PLAYER_1.hand) - 1, (hand_rect.x + int(sard_w * 0.125),
+                                                                        hand_rect.y + int(sard_w * 0.125)),
+                                               (sard_w, sard_h), 0)
+                                    window[0] = None
+                                elif window[0].btn_no[0].collidepoint(event.pos[0] - window[0].rect.x, event.pos[1]):
+                                    PLAYER_1.pack = [*PLAYER_1.pack, *list(map(lambda car: car.id, window[0].cards))]
+                                    [car.kill() for car in window[0].cards]
+                                    shuffle(PLAYER_1.pack)
+                                    for _ in range(6):
+                                        PLAYER_1.hand.add((a := Card((sard_w, sard_h), PLAYER_1.pack.pop(0), PLAYER_1)))
+                                        a.location(len(PLAYER_1.hand) - 1, (hand_rect.x + int(sard_w * 0.125),
+                                                                            hand_rect.y + int(sard_w * 0.125)),
+                                                   (sard_w, sard_h), 0)
+                                    window[0] = None
+                    elif window[0].tipe == 1:
+                        if event.type == pg.MOUSEBUTTONDOWN:
+                            if event.button == 1:
+                                pg.mouse.get_rel()
+                        if event.type == pg.MOUSEMOTION:
+                            if event.buttons[0]:
+                                if pg.Rect(pg.mouse.get_pos()[0], pg.mouse.get_pos()[1], 0, 0).collidelist(
+                                        list(map(lambda x: x.rect, (a := window[0].kw['lis'])))):
+                                    if not cur:
+                                        # сохраняем выбранную карту
+                                        cur = lis[0] if (lis := [card for card in a if
+                                                                 card.rect.collidepoint(event.pos)]) != [] else None
+                                    if cur:
+                                        if cur.type in window[0].kw['type'] and cur.object in window[0].kw['object'] \
+                                                and cur.player == window[0].kw['player']:
+                                            print(1)
+                                            # перемещение карты
+                                            cur.rect.move_ip(event.rel)
+                                        else:
+                                            cur = None
+                        if event.type == pg.MOUSEBUTTONUP:
+                            if window[0].btn_ok[0].collidepoint(event.pos[0] - window[0].rect.x,
+                                                                event.pos[1] - window[0].rect.y) and \
+                                    len(window[0].cards):
+                                window[0].kw['spell'](window[0].cards[0], enemy=PLAYER_2, hero=PLAYER_1,
+                                                      me=window[0].cards[0])
+                                window[0] = None
+                            if event.button == 1 and cur:
+                                if window[0].rect.colliderect(cur.rect):
+                                    window[0].cards = [cur]
+                                cur.zeroing()
+                                cur = None
+
                 else:
                     now_cem = PLAYER_1.cemetery
                     if not opening:
@@ -287,5 +344,16 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list) -> None:
                     runGame = False
             pg.display.update()
             clock.tick(FPS)
+
+        if count_turn > 1:
+            for card in list(filter(lambda x: x and x.status == 2, PLAYER_1.active_cards[0])):
+                card.case = 1
+                card.status = 1
+                if e_card := PLAYER_2.active_cards[0][card.land]:
+                    card.take(e_card.take(card.atc if e_card.can_take else 0,
+                                          enemy=PLAYER_1, me=e_card, hero=PLAYER_2),
+                              enemy=PLAYER_2, me=card, hero=PLAYER_1)
+                else:
+                    PLAYER_2.HP -= card.atc
         for i in list(filter(None, PLAYER_1.active_cards[0])):
             i.moving(False)
