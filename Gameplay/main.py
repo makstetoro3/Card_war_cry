@@ -1,6 +1,7 @@
 import pygame as pg
 from my_menU import men
 from logic_of_game import pvp
+from To_begin import button_to_begin
 
 pg.init()
 FINN = ((13, 14, 15, 16), (40, 40, 41, 41, 28, 28, 26, 26, 31, 31, 36, 36, 37, 33, 33, 29, 29, 34, 27, 27, 35, 35, 32,
@@ -15,6 +16,7 @@ run = True
 while run:
     res = men(screen, W, H)
     if res == 1:
+        button_to_begin(screen, W, H, bloop=1)
         pvp(screen, W, H, [FINN, JAKE])
     if res == 0:
         run = False
