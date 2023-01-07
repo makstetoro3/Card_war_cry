@@ -256,7 +256,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                         cur.rect.move_ip(event.rel)
                                     else:
                                         cur = None
-                elif window[0]:
+                elif window[0] and not between:
                     if window[0].tipe == 0:
                         if event.type == pg.MOUSEBUTTONUP:
                             if event.button == 1:
@@ -313,8 +313,6 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                     window[0].cards = [cur]
                                 cur.zeroing()
                                 cur = None
-
-                else:
                 elif not between:
                     now_cem = PLAYER_1.cemetery
                     if not opening:
@@ -391,4 +389,3 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
         while eee:
             if pg.key.get_pressed()[pg.K_SPACE]: eee = False
             clock.tick(FPS)
-
