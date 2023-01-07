@@ -1,38 +1,34 @@
 import pygame as pg
 import pygame_gui
+from To_begin import button_to_begin
 
 
 def men(screen: pg.Surface, W: int, H: int) -> int:
+    users = []
     manager = pygame_gui.UIManager((W, H))
-    menu_backr = pg.transform.scale(pg.image.load('../data/menu.png'), (W, H))
+    menu_backr = pg.transform.scale(pg.image.load('../data/menu.png'), (W, H))      #Постоянная мелодия и задний фон
     sound = pg.mixer.Sound("../data/melodia.wav")
-    pg.mixer.music.load("../data/music.mp3")
-    pg.mixer.music.play(-1)
+    #pg.mixer.music.load("../data/music.mp3")
+    #pg.mixer.music.play(-1)
     play = pygame_gui.elements.UIButton(
-        relative_rect=pg.Rect((W // 2 - 160, H // 2), (300, 70)),
+        relative_rect=pg.Rect((W // 2 - 160, H // 2 + 70), (300, 70)),   # Кнопки играть, обучение, колоды, выход
         text='Играть',
         manager=manager
     )
 
     training = pygame_gui.elements.UIButton(
-        relative_rect=pg.Rect((W // 2 - 160, H // 2 + 80), (300, 70)),
+        relative_rect=pg.Rect((W // 2 - 160, H // 2 + 150), (300, 70)),
         text='Обучение',
         manager=manager
     )
 
-    deck = pygame_gui.elements.UIButton(
-        relative_rect=pg.Rect((W // 2 - 160, H // 2 + 160), (300, 70)),
-        text='Колода',
-        manager=manager
-    )
-
-    exit_ = pygame_gui.elements.UIButton(
+    exit = pygame_gui.elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 210, H // 2 + 310), (400, 50)),
         text='Выход',
         manager=manager
     )
 
-    USER1 = pygame_gui.elements.UITextEntryLine(
+    USER1 = pygame_gui.elements.UITextEntryLine(                             #2 поля ввода для users
         relative_rect=pg.Rect((240, 170), (300, 50)), manager=manager
     )
 
@@ -42,16 +38,17 @@ def men(screen: pg.Surface, W: int, H: int) -> int:
     vol = 1.0
     FPS = 60
     flPause = False
+    c = 0
     show = True
     clock = pg.time.Clock()
 
     while show:
-        time_delta = clock.tick(60) / 1000.0
+        time_delta = clock.tick(60) / 1000.0                   #действия с музыкой
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                exit_()
+                exit()
             elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
+                if event.key == pg.K_F2:
                     flPause = not flPause
                     if flPause:
                         pg.mixer.music.pause()
@@ -73,19 +70,20 @@ def men(screen: pg.Surface, W: int, H: int) -> int:
             # pg.display.update()
 
             if event.type == pg.USEREVENT:
-                if event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
-                    sound.play()
+                if event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:  #окно выхода
+                    #sound.play()
                     res = 0
                     show = False
                 if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
                     print("Name:", event.text)
+                    users.append(event.text)
+                    c += 1
+                    if c == 2:
+                        pass
+                    print(users)
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event.ui_element == play:
-                        sound.play()
-                        show = False
-                        res = 1
-                    if event.ui_element == exit_:
-                        sound.play()
+                    if event.ui_element == exit:    #окно выхода
+                        #sound.play()
                         confirmation_dialog = pygame_gui.windows.UIConfirmationDialog(
                             rect=pg.Rect((W // 2 - 160, H // 2 + 50), (300, 200)),
                             manager=manager,
@@ -94,9 +92,14 @@ def men(screen: pg.Surface, W: int, H: int) -> int:
                             action_short_name='OK',
                             blocking=True
                         )
-                    if event.ui_element == training:
+                    if event.ui_element == training:          #обучение
                         sound.play()
                         hhhh(screen, W, H)
+                    if event.ui_element == play: #кнопка играть
+                        show = False
+                        # sound.play()
+                        res = 1
+                        button_to_begin(screen, W, H, bloop=1)
             manager.process_events(event)
 
         manager.update(time_delta)
@@ -107,7 +110,7 @@ def men(screen: pg.Surface, W: int, H: int) -> int:
     return res
 
 
-def hhhh(screen: pg.Surface, W: int, H: int) -> int:
+def hhhh(screen: pg.Surface, W: int, H: int) -> int:           #цикл для существования одной из страниц обучения
     bun = True
     while bun:
         bes = my_training(screen, W, H)
@@ -117,7 +120,7 @@ def hhhh(screen: pg.Surface, W: int, H: int) -> int:
             pass
 
 
-def my_training(screen: pg.Surface, W: int, H: int) -> int:
+def my_training(screen: pg.Surface, W: int, H: int) -> int:                #1 страница обучения
     manager1 = pygame_gui.UIManager((W, H))
     prim1 = pg.transform.scale(pg.image.load('../data/prim1.png'), (W // 2 + 90, H // 2 + 90))
     menu_backr1 = pg.transform.scale(pg.image.load('../data/training.png'), (W, H))
@@ -125,7 +128,7 @@ def my_training(screen: pg.Surface, W: int, H: int) -> int:
 
     f2 = pg.font.SysFont('italic', 60)
     text2 = f2.render("Внешний вид", False, (0, 0, 0))
-    menu_backr1.blit(text2, (W // 2 - 150, 170))
+    menu_backr1.blit(text2, (W // 2 - 150, 170))                            #картинки, мелодии, текст, кнопки
     pg.display.update()
 
     f3 = pg.font.SysFont('italic', 60)
@@ -167,7 +170,7 @@ def my_training(screen: pg.Surface, W: int, H: int) -> int:
         for event1 in pg.event.get():
             if event1.type == pg.QUIT:
                 exit()
-            elif event1.type == pg.KEYDOWN:
+            elif event1.type == pg.KEYDOWN:            #звук
                 if event1.key == pg.K_SPACE:
                     flPause1 = not flPause1
                     if flPause1:
@@ -184,7 +187,7 @@ def my_training(screen: pg.Surface, W: int, H: int) -> int:
                     print(pg.mixer.music.get_volume())
             if event1.type == pg.USEREVENT:
                 if event1.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event1.ui_element == hhh:
+                    if event1.ui_element == hhh:          #кнопки назад и следующее
                         sound1.play()
                         show1 = False
                         bes = 0
@@ -201,7 +204,7 @@ def my_training(screen: pg.Surface, W: int, H: int) -> int:
     return bes
 
 
-def hhh1(screen: pg.Surface, W: int, H: int) -> int:
+def hhh1(screen: pg.Surface, W: int, H: int) -> int:             #цикл для существования одной из страниц обучения
     bun1 = True
     while bun1:
         bes1 = my_training1(screen, W, H)
@@ -214,9 +217,9 @@ def hhh1(screen: pg.Surface, W: int, H: int) -> int:
 def my_training1(screen: pg.Surface, W: int, H: int) -> int:
     manager2 = pygame_gui.UIManager((W, H))
     menu_backr2 = pg.transform.scale(pg.image.load('../data/training.png'), (W, H))
-    sound2 = pg.mixer.Sound("../data/melodia.wav")
+    sound2 = pg.mixer.Sound("../data/melodia.wav")                                            #2 страница обучения
     prim2 = pg.transform.scale(pg.image.load('../data/prim2.png'), (W // 2 - 100, H - 100))
-    prim3 = pg.transform.scale(pg.image.load('../data/prim3.png'), (W // 2 - 100, H // 2))
+    prim3 = pg.transform.scale(pg.image.load('../data/prim3.png'), (W // 2 - 160, H // 2 - 60))
     best = 0
     hhh1 = pygame_gui.elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 680, H // 2 + 310), (290, 60)),
@@ -229,13 +232,13 @@ def my_training1(screen: pg.Surface, W: int, H: int) -> int:
         text='Следующая страница ->',
         manager=manager2
     )
-
+                                                                                 # картинки, мелодии, текст, кнопки
     f4 = pg.font.SysFont('italic', 60)
     text4 = f4.render("Описание карт", False, (0, 0, 0))
     menu_backr2.blit(text4, ((W // 2) // 2 - 150, 25))
     pg.display.update()
 
-    text = 'У игровой карты есть: \n   1)название;\n   2)единицу атаки и защиты; \n   3)какие поля контролирует; \n   4)особые свойства(у каждой карты свои).'
+    text = 'У игровой карты есть: \n   1)название;\n   2)числа атаки и защиты; \n   3)какие поля контролирует; \n   4)особые свойства(у каждой карты свои).'
     pos = (10, 70)
     font = pg.font.SysFont('italic', 42)
     blit_text(menu_backr2, text, pos, font, best)
@@ -262,7 +265,7 @@ def my_training1(screen: pg.Surface, W: int, H: int) -> int:
                     flPause2 = not flPause2
                     if flPause2:
                         pg.mixer.music.pause()
-                    else:
+                    else:                                                     #звук
                         pg.mixer.music.unpause()
                 elif event2.key == pg.K_LEFT:
                     vol2 -= 0.1
@@ -274,7 +277,7 @@ def my_training1(screen: pg.Surface, W: int, H: int) -> int:
                     print(pg.mixer.music.get_volume())
             if event2.type == pg.USEREVENT:
                 if event2.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event2.ui_element == hhh1:
+                    if event2.ui_element == hhh1:                  #кнопки назад и следующее
                         sound2.play()
                         show2 = False
                         bes1 = 0
@@ -285,14 +288,14 @@ def my_training1(screen: pg.Surface, W: int, H: int) -> int:
         manager2.update(time_delta1)
         screen.blit(menu_backr2, (0, 0))
         screen.blit(prim2, (W - W // 2 + 90, H // 2 - 370))
-        screen.blit(prim3, (160, H // 2 - 10))
+        screen.blit(prim3, (200, H // 2 - 20))
         manager2.draw_ui(screen)
         pg.display.update()
 
     return bes1
 
 
-def hhh2(screen: pg.Surface, W: int, H: int) -> int:
+def hhh2(screen: pg.Surface, W: int, H: int) -> int:          #цикл для существования одной из страниц обучения
     bun2 = True
     while bun2:
         bes2 = my_training2(screen, W, H)
@@ -302,17 +305,16 @@ def hhh2(screen: pg.Surface, W: int, H: int) -> int:
             pass
 
 
-def my_training2(screen: pg.Surface, W: int, H: int) -> int:
+def my_training2(screen: pg.Surface, W: int, H: int) -> int:                              #3 страница обучения
     manager3 = pygame_gui.UIManager((W, H))
     menu_backr3 = pg.transform.scale(pg.image.load('../data/training.png'), (W, H))
     sound3 = pg.mixer.Sound("../data/melodia.wav")
-    prim4 = pg.transform.scale(pg.image.load('../data/prim4.png'), ((W // 2) // 2 - 100, (H // 2) - 100))
-    prim5 = pg.transform.scale(pg.image.load('../data/prim5.png'), ((W // 2) // 2 - 100, (H // 2) - 100))
+    prim4 = pg.transform.scale(pg.image.load('../data/prim45.png'), ((W // 2) - 300, (H // 2) - 100))
     prim6 = pg.transform.scale(pg.image.load('../data/prim6.png'), ((W // 2) // 2 + 100, (H // 2) // 2 + 100))
 
     hhh2 = pygame_gui.elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 680, H // 2 + 310), (290, 60)),
-        text='<- Назад',
+        text='<- Назад',                                                     #кнопки, картинки, текст
         manager=manager3
     )
 
@@ -373,7 +375,7 @@ def my_training2(screen: pg.Surface, W: int, H: int) -> int:
                         pg.mixer.music.unpause()
                 elif event3.key == pg.K_LEFT:
                     vol3 -= 0.1
-                    pg.mixer.music.set_volume(vol3)
+                    pg.mixer.music.set_volume(vol3)                   #звук
                     print(pg.mixer.music.get_volume())
                 elif event3.key == pg.K_RIGHT:
                     vol3 += 0.1
@@ -387,15 +389,13 @@ def my_training2(screen: pg.Surface, W: int, H: int) -> int:
                         bes2 = 0
                     if event3.ui_element == per:
                         sound3.play()
-                        show3 = False
                         bes2 = 0
             manager3.process_events(event3)
         manager3.update(time_delta2)
         screen.blit(menu_backr3, (0, 0))
         c = W - W // 2 + 400
         k = ((W // 2) // 2 - 100)
-        screen.blit(prim4, (c, H // 2 - 380))
-        screen.blit(prim5, (c - k, H // 2 - 380))
+        screen.blit(prim4, (c - 180, H // 2 - 340))
         screen.blit(prim6, (W // 2 + 200, H // 2))
         manager3.draw_ui(screen)
         pg.display.update()
@@ -408,7 +408,7 @@ def blit_text(surface, text, pos, font, best, color=pg.Color('black')):
         color = pg.Color('red')
     else:
         color = pg.Color('black')
-    words = [word.split(' ') for word in text.splitlines()]  # 2D array where each row is a list of words.
+    words = [word.split(' ') for word in text.splitlines()]  # функция для вывода текста
     space = font.size(' ')[0]
     max_width, max_height = surface.get_size()
     x, y = pos
