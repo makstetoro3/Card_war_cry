@@ -54,7 +54,6 @@ class Card(pg.sprite.Sprite):  # класс Карты
             exec(f'self.passive_spell = p{card_id}')
         else:
             self.passive_spell = None
-        print(self, self.passive_spell, info)
         if info[11]:
             exec(f'from spell import d{card_id}')
             exec(f'self.dead_spell = d{card_id}')
@@ -86,10 +85,13 @@ class Card(pg.sprite.Sprite):  # класс Карты
         self.player.cemetery.add(self)
 
     def set_land(self, land: pg.Rect, ID: int) -> None:
+        if land != -1:
+            self.player.active_cards[self.object][self.land] = None
+            self.moving()
+        self.player.active_cards[self.object][ID] = self
         self.rect = land
         self.default = land
         self.pos = (self.rect.x, self.rect.y)
-        self.status = 2  # устанавливаем новый статус карты
         self.land = ID
 
     def location(self, n: int, hand_pos: tuple, indent: tuple, slider: int) -> None:

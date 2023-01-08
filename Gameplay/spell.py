@@ -28,20 +28,28 @@ def p3(**kwargs):
         kwargs['me'].atc += 1
 
 
-def s4(**kwargs):
-    if kwargs['hero'].hand: list(kwargs['hero'].hand)[0].dead(True)
+def s4(cry: Card, **kwargs):
+    kwargs['window'][0] = Window(
+        Rect((Info().current_w >> 1) - (kwargs['sard_h'] << 1), 0, kwargs['sard_h'] << 2,
+             Info().current_h >> 1), 'выберите карту с руки', 'ок', '', 1, type=(0, 3, 5), object=(0, 1, 2),
+        player=kwargs['hero'], spell=f4,
+        lis=kwargs['hero'].hand, zona=False)
+    card = kwargs['hero'].active_cards[0]
+    if cry is not None:
+        if kwargs['me'].land > 0 and not card[kwargs['me'].land - 1]:
+            cry.set_land(kwargs['rect_card'][0][kwargs['me'].land - 1].copy(), kwargs['me'].land - 1)
+        elif kwargs['me'].land < 3 and not card[kwargs['me'].land + 1]:
+            cry.set_land(kwargs['rect_card'][0][kwargs['me'].land + 1].copy(), kwargs['me'].land + 1)
+        else:
+            cry.dead()
+
+
+def f4(card: Card, **kwargs):
+    card.dead(True)
     [a.location(n,
                 (kwargs['hand_rect'].x + int(kwargs['sard_w'] * 0.125),
                  kwargs['hand_rect'].y + int(kwargs['sard_w'] * 0.125)),
                 (kwargs['sard_w'], kwargs['sard_h']), kwargs['slider']) for n, a in enumerate(kwargs['hero'].hand)]
-    card = kwargs['hero'].active_cards[0]
-    if card[kwargs['me'].land] and kwargs['me'].land > 0 and not card[kwargs['me'].land - 1]:
-        card[kwargs['me'].land - 1] = card[kwargs['me'].land]
-        card[kwargs['me'].land].moving(True)
-        card[kwargs['me'].land] = None
-    elif card[kwargs['me'].land] and kwargs['me'].land < 3 and not card[kwargs['me'].land + 1]:
-        card[kwargs['me'].land + 1] = card[kwargs['me'].land]
-        card[kwargs['me'].land] = None
 
 
 def s5(**kwargs):
@@ -54,7 +62,6 @@ def p6(**kwargs):
 
 
 def s7(**kwargs):
-    print(kwargs['me'])
     if kwargs['hero'].land_activ[kwargs['me'].land]:
         kwargs['hero'].land_activ[kwargs['me'].land] = False
         list(kwargs['hero'].land)[kwargs['me'].land].activ = False
@@ -71,7 +78,7 @@ def s8(**kwargs):
         kwargs['enemy'].hand.add(card)
 
 
-def f9(**kwargs):
+def f9(**kwargs):  # сложно
     ...
 
 
@@ -132,7 +139,8 @@ def s16(**kwargs):
 
 
 def s17(**kwargs):
-    kwargs['me'].turn_use = kwargs['turn']
+    for i in list(filter(lambda x: x and x.type == 0, kwargs['hero'].active_cards[0])):
+        i.atc += 1
 
 
 def p17(**kwargs):
@@ -149,6 +157,10 @@ def s18(**kwargs):
             list(kwargs['hero'].land)[i].activ = True
             list(kwargs['hero'].land)[i].flip()
             break
+
+    for i in list(filter(None, kwargs['hero'].active_cards[1])):
+        if i.status == 2:
+            i.status = 3
 
 
 def s19(**kwargs):
@@ -203,7 +215,9 @@ def p27(**kwargs):
 
 
 def f28(**kwargs):
-    ...
+    for i in list(filter(None, kwargs['hero'].active_cards[0])):
+        if i.status == 2:
+            i.status = 3
 
 
 def f29(**kwargs):
@@ -230,12 +244,14 @@ def s31(**kwargs):
 
 
 def f31(card: Card, **kwargs):
-    card.case = 0
-    card.status = 2
+    if card.case != 0:
+        card.case = 0
+        card.status = 2
+    print(kwargs)
 
 
 def p32(**kwargs):
-    for i in list(filter(lambda x: x.moving(True), list(filter(None, list(kwargs['hero'].active_cards[0]))))):
+    for i in list(filter(lambda x: x and x.move, list(kwargs['hero'].active_cards[0]))):
         i.atc += 2
 
 
@@ -291,7 +307,8 @@ def p38(**kwargs):
 
 
 def f39(**kwargs):
-    ...
+    if card := kwargs['hero'].active_cards[0][kwargs['me'].land]:
+        card.status = 3
 
 
 def f40(**kwargs):
@@ -306,12 +323,13 @@ def p41(**kwargs):
 
 
 def s42(**kwargs):
-    kwargs['me'].turn_use = kwargs['turn']
+    for i in list(filter(lambda x: x and x.move, kwargs['hero'].active_cards[0])):
+        i.atc += 2
 
 
 def p42(**kwargs):
     if kwargs['me'].turn_use == kwargs['turn']:
-        for i in list(filter(lambda x: x and x.move == 0, kwargs['hero'].active_cards[0])):
+        for i in list(filter(lambda x: x and x.move, kwargs['hero'].active_cards[0])):
             i.atc += 2
     return kwargs['me'].turn_use == kwargs['turn']
 
@@ -330,7 +348,6 @@ def s44(**kwargs):
 
 
 def f44(card: Card, **kwargs):
-    kwargs['me'].turn_use = kwargs['turn']
     kwargs['me'].bav = card
 
 
