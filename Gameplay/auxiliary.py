@@ -79,7 +79,8 @@ def draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, win
                     ract = rect_card[cur.object][i]
                     screen.blit(surs, ract)
                     pg.draw.rect(screen, (255, 255, 0),
-                                 ((ract.x - sard_w * 0.05, ract.y - sard_w * 0.05), (sard_w * 1.1, sard_h + sard_w * 0.1)),
+                                 ((ract.x - sard_w * 0.05, ract.y - sard_w * 0.05),
+                                  (sard_w * 1.1, sard_h + sard_w * 0.1)),
                                  int(sard_w * 0.05))
         elif not cur and len(car := list(filter(lambda j: j and j.status == 3, [*PLAYER_1.active_cards[0],
                                                                                 *PLAYER_1.active_cards[1]]))):
