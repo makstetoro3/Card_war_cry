@@ -398,7 +398,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
             spit = AnimatedSprite(pg.transform.scale(pg.image.load(f'../data/dance_0.png'), (9000, 450)), 20, 1,
                                   W // 2 - 225, H // 2 - 285)
         font = pg.font.Font('../data/base.ttf', 64)
-        text = font.render('победитель', True, (175, 25, 25))
+        text = font.render('победитель:', True, (175, 25, 25))
         text_ = font.render(win.name, True, (175, 25, 25))
         while eee:
             for _ in pg.event.get():
