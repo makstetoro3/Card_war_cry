@@ -192,8 +192,10 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                             recalculation(PLAYER_1, PLAYER_2, hand_rect=hand_rect, sard_w=sard_w,
                                                           sard_h=sard_h, turn=count_turn)
                                 if cur.object == 2 and pg.Rect((W >> 1) - (sard_w << 1), H >> 1, sard_w << 2,
-                                                               sard_h).colliderect(cur.rect):
+                                                               sard_h).colliderect(cur.rect) \
+                                        and PLAYER_1.action >= cur.price:
                                     PLAYER_1.magic.append(cur)
+                                    PLAYER_1.action -= cur.price
                                     cur.spawn_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1,
                                                     hand_rect=hand_rect, slider=slider, sard_w=sard_w,
                                                     sard_h=sard_h, turn=count_turn, window=window)
@@ -306,7 +308,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                                                 event.pos[1] - window[0].rect.y) and \
                                     len(window[0].cards):
                                 window[0].kw['spell'](window[0].cards[0], enemy=PLAYER_2, hero=PLAYER_1,
-                                                      me=window[0].cards[0])
+                                                      me=window[0].cards[0], turn=count_turn)
                                 window[0] = None
                             if event.button == 1 and cur:
                                 if window[0].rect.colliderect(cur.rect):
