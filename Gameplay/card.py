@@ -54,6 +54,7 @@ class Card(pg.sprite.Sprite):  # класс Карты
             exec(f'self.passive_spell = p{card_id}')
         else:
             self.passive_spell = None
+        print(self, self.passive_spell, info)
         if info[11]:
             exec(f'from spell import d{card_id}')
             exec(f'self.dead_spell = d{card_id}')
@@ -158,3 +159,6 @@ class Card(pg.sprite.Sprite):  # класс Карты
     def moving(self, boo=True):
         self.move = boo
         self.move_one = boo
+
+    def __str__(self):
+        return f'Card<{self.id}; {self.land}>'

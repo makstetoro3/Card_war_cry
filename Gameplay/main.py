@@ -14,7 +14,7 @@ run = True
 while run:
     res = men(screen, W, H)
     if res[0] == 1:
-        pvp(screen, W, H, [FINN, JAKE], [res[2], res[1]])
+        pvp(screen, W, H, [FINN, JAKE], [(res[2], 0), (res[1], 1)])
     if res[0] == 0:
         run = False
 

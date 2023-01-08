@@ -54,6 +54,7 @@ def p6(**kwargs):
 
 
 def s7(**kwargs):
+    print(kwargs['me'])
     if kwargs['hero'].land_activ[kwargs['me'].land]:
         kwargs['hero'].land_activ[kwargs['me'].land] = False
         list(kwargs['hero'].land)[kwargs['me'].land].activ = False
@@ -138,13 +139,15 @@ def p17(**kwargs):
     if kwargs['me'].turn_use == kwargs['turn']:
         for i in list(filter(lambda x: x and x.type == 0, kwargs['hero'].active_cards[0])):
             i.atc += 1
+    return kwargs['me'].turn_use == kwargs['turn']
 
 
 def s18(**kwargs):
-    for i in kwargs['hero'].land:
-        if not i.activ:
-            i.activ = True
-            i.flip()
+    for i in range(4):
+        if not list(kwargs['hero'].land)[i].activ:
+            kwargs['hero'].land_activ[i] = True
+            list(kwargs['hero'].land)[i].activ = True
+            list(kwargs['hero'].land)[i].flip()
             break
 
 
@@ -218,12 +221,12 @@ def f30(**kwargs):
 
 
 def s31(**kwargs):
-    if any(kwargs['enemy'].active_cards[0]):
+    if lis := list(filter(lambda c: c and c.case == 2, kwargs['hero'].active_cards[0])):
         kwargs['window'][0] = Window(
             Rect((Info().current_w >> 1) - (kwargs['sard_h'] << 1), 0, kwargs['sard_h'] << 2,
                  Info().current_h >> 1), 'выберите существо', 'ок', '', 1, type=(0, 3, 5), object=[0],
             player=kwargs['hero'], spell=f31,
-            lis=list(filter(lambda c: c and c.case == 2, kwargs['hero'].active_cards[0])), zona=False)
+            lis=lis, zona=False)
 
 
 def f31(card: Card, **kwargs):
@@ -310,6 +313,7 @@ def p42(**kwargs):
     if kwargs['me'].turn_use == kwargs['turn']:
         for i in list(filter(lambda x: x and x.move == 0, kwargs['hero'].active_cards[0])):
             i.atc += 2
+    return kwargs['me'].turn_use == kwargs['turn']
 
 
 def s43(**kwargs):
@@ -331,8 +335,10 @@ def f44(card: Card, **kwargs):
 
 
 def p44(**kwargs):
+    print(kwargs['me'].turn_use == kwargs['turn'])
     if kwargs['me'].turn_use == kwargs['turn']:
         kwargs['me'].bav.atc += 2
+    return kwargs['me'].turn_use == kwargs['turn']
 
 
 def s45(**kwargs):

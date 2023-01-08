@@ -44,11 +44,12 @@ def recalculation(p1: Player, p2: Player, **kwargs):
                                                                          sard_h=kwargs['sard_h'],
                                                                          hand_rect=kwargs['hand_rect'])
     for card in list(filter(lambda x: x.recalculation, p1.magic)):
-        if card.passive_spell:
-            card.passive_spell(enemy=p2, hero=p1, me=card, sard_w=kwargs['sard_w'],
-                               sard_h=kwargs['sard_h'], hand_rect=kwargs['hand_rect'])
-        else:
-            card.spawn_spell(enemy=p2, me=card, hero=p1, turn=kwargs['turn'])
+        print(card)
+        card.passive_spell(enemy=p2, hero=p1, me=card, sard_w=kwargs['sard_w'],
+                           sard_h=kwargs['sard_h'], hand_rect=kwargs['hand_rect'])
+    for card in list(filter(lambda x: x.recalculation, p2.magic)):
+        card.passive_spell(enemy=p1, hero=p2, me=card, sard_w=kwargs['sard_w'],
+                           sard_h=kwargs['sard_h'], hand_rect=kwargs['hand_rect'])
 
     [card.specifications() for card in p1.active_cards[0] if card]
     [card.specifications() for card in p2.active_cards[0] if card]

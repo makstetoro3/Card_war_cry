@@ -6,6 +6,7 @@ from random import randint
 from auxiliary import recalculation, draw_game
 from window import Window
 from random import shuffle
+from animation import AnimatedSprite
 
 
 def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
@@ -31,10 +32,10 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
     cem_win_sur = pg.Surface((sard_w << 3, H))
     btn_cem = pg.Rect((W >> 1) - int(card_w * 3.7), H >> 1, sard_w, sard_h)
     btn_cem_2 = pg.Rect((W >> 1) - int(card_w * 3.7), (H >> 1) - card_h, sard_w, sard_h)
-    PLAYER_1 = Player(decks.pop((r := randint(-1, 1))), name.pop(r), r)
+    PLAYER_1 = Player(decks.pop((r := randint(-1, 1))), name.pop(r))
     [PLAYER_1.land.add(Land(PLAYER_1.land_id[i], ((W >> 1) - card_w * (2 - i), (H >> 1)), (card_w, card_h), 0,
                             PLAYER_1.land_activ[i])) for i in range(4)]
-    PLAYER_2 = Player(decks.pop(0), name.pop(0), 1 - r)
+    PLAYER_2 = Player(decks.pop(0), name.pop(0))
     [PLAYER_2.land.add(
         Land(PLAYER_2.land_id[i], ((W >> 1) - card_w * (2 - i), (H >> 1) - card_h), (card_w, card_h), 180,
              PLAYER_1.land_activ[i])) for i in range(4)]
@@ -62,6 +63,11 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
     cem_win = 0
     count_turn = 0
     window = [None]
+
+    spit_Finn = AnimatedSprite(pg.transform.scale(pg.image.load('../data/zzzFinn.png'), (3600, 450)), 8, 1,
+                               W // 2 - 225, H // 2 - 255)
+    spit_Jack = AnimatedSprite(pg.transform.scale(pg.image.load('../data/Jack.png'), (7752, 408)), 19, 1,
+                               W // 2 - 225, H // 2 - 255)
     # for _ in range(5):
     #     PLAYER_2.hand.add((a := Card((sard_w, sard_h), PLAYER_2.pack.pop(0), PLAYER_2)))
     #     a.location(len(PLAYER_2.hand) - 1, (hand_rect.x + int(sard_w * 0.125),
@@ -163,15 +169,11 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                     for i in range(4):
                                         if rect_card[cur.object][i].colliderect(
                                                 cur.rect) and ((cur.status < 2 and PLAYER_1.action >= cur.price) or
-                                                               (cur.status == 3 and not rect_card[0][i])):
+                                                               (cur.status == 3 and not rect_card[cur.object][i])):
                                             if cur.status != 3:
                                                 cards.add(cur)
                                                 PLAYER_1.action -= cur.price
                                                 cards_on_hand.remove(cur)
-                                                if cur.spawn_spell:
-                                                    cur.spawn_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1,
-                                                                    hand_rect=hand_rect, slider=slider, sard_w=sard_w,
-                                                                    sard_h=sard_h, turn=count_turn, window=window)
                                                 [a.location(n,
                                                             (hand_rect.x + int(sard_w * 0.125),
                                                              hand_rect.y + int(sard_w * 0.125)),
@@ -182,13 +184,20 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                                     if spell := play[cur.object][i].dead_spell:
                                                         spell(enemy=PLAYER_2, me=play[cur.object][i], hero=PLAYER_1)
                                                     play[cur.object][i].dead()
+                                                play[cur.object][i] = cur
+                                                cur.set_land(rect_card[cur.object][i].copy(), i)  # перемещаем карту
+                                                if cur.spawn_spell:
+                                                    cur.spawn_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1,
+                                                                    hand_rect=hand_rect, slider=slider, sard_w=sard_w,
+                                                                    sard_h=sard_h, turn=count_turn, window=window)
                                             else:
                                                 play[cur.land] = None
-                                                for k in list(filter(None, PLAYER_1.active_cards[0])):
+                                                play[cur.object][i] = cur
+                                                cur.set_land(rect_card[cur.object][i].copy(), i)  # перемещаем карту
+                                                for k in list(filter(None, PLAYER_1.active_cards[cur.object])):
                                                     if k.status == 3:
                                                         k.status = 2
-                                            play[cur.object][i] = cur
-                                            cur.set_land(rect_card[cur.object][i].copy(), i)  # перемещаем карту
+                                            print(cur, 9)
                                             recalculation(PLAYER_1, PLAYER_2, hand_rect=hand_rect, sard_w=sard_w,
                                                           sard_h=sard_h, turn=count_turn)
                                 if cur.object == 2 and pg.Rect((W >> 1) - (sard_w << 1), H >> 1, sard_w << 2,
@@ -298,7 +307,6 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                     if cur:
                                         if cur.type in window[0].kw['type'] and cur.object in window[0].kw['object'] \
                                                 and cur.player == window[0].kw['player']:
-                                            print(1)
                                             # перемещение карты
                                             cur.rect.move_ip(event.rel)
                                         else:
@@ -307,8 +315,10 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                             if window[0].btn_ok[0].collidepoint(event.pos[0] - window[0].rect.x,
                                                                 event.pos[1] - window[0].rect.y) and \
                                     len(window[0].cards):
-                                window[0].kw['spell'](window[0].cards[0], enemy=PLAYER_2, hero=PLAYER_1,
-                                                      me=window[0].cards[0], turn=count_turn)
+                                print(window[0].cards[0])
+                                window[0].kw['spell'](window[0].cards[0], enemy=PLAYER_2, me=window[0].cards[0],
+                                                      hero=PLAYER_1, hand_rect=hand_rect, sard_w=sard_w, sard_h=sard_h,
+                                                      turn=count_turn)
                                 window[0] = None
                             if event.button == 1 and cur:
                                 if window[0].rect.colliderect(cur.rect):
@@ -345,13 +355,13 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                             cem_win = 0
                             opening = False
                 else:
-                    screen.fill((0, 0, 0))
+                    screen.fill((127, 127, 127))
                     if PLAYER_1.id == 1:
-                        screen.blit(pg.transform.scale(pg.image.load('../data/Jake1.png'), (250, 450)),
-                                    (W // 2 - 120, H // 2 - 370))
+                        spit_Jack.update()
+                        spit_Jack.draw(screen)
                     else:
-                        screen.blit(pg.transform.scale(pg.image.load('../data/Finn.png'), (450, 450)),
-                                    (W // 2 - 300, H // 2 - 370))
+                        spit_Finn.update()
+                        spit_Finn.draw(screen)
                     font = pg.font.Font('../data/base.ttf', 64)
                     text = font.render(PLAYER_1.name, True, (175, 25, 25))
                     screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - (H >> 2)))
@@ -374,22 +384,28 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                     PLAYER_2.HP -= card.atc
         for i in list(filter(None, PLAYER_1.active_cards[0])):
             i.moving(False)
+        PLAYER_1.magic = list(
+            filter(lambda x: x.recalculation and x.passive_spell(enemy=PLAYER_2, hero=PLAYER_1, me=x,
+                                                                 sard_w=sard_w, sard_h=sard_h, turn=count_turn,
+                                                                 hand_rect=hand_rect), PLAYER_1.magic))
     if win:
         eee = True
-        screen.fill((0, 0, 0))
+        screen.fill((127, 127, 127))
         if win.id == 1:
-            screen.blit(pg.transform.scale(pg.image.load('../data/Jake1.png'), (250, 450)),
-                        (W // 2 - 120, H // 2 - 370))
+            spit = AnimatedSprite(pg.transform.scale(pg.image.load(f'../data/dance_1.png'), (11664, 432)), 27, 1,
+                                  W // 2 - 225, H // 2 - 255)
         else:
-            screen.blit(pg.transform.scale(pg.image.load('../data/Finn.png'), (450, 450)),
-                        (W // 2 - 300, H // 2 - 370))
+            spit = AnimatedSprite(pg.transform.scale(pg.image.load(f'../data/dance_0.png'), (9000, 450)), 20, 1,
+                                  W // 2 - 225, H // 2 - 285)
         font = pg.font.Font('../data/base.ttf', 64)
         text = font.render('победитель', True, (175, 25, 25))
-        screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - H // 3))
-        text = font.render(win.name, True, (175, 25, 25))
-        screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - (H >> 2)))
-        pg.display.update()
+        text_ = font.render(win.name, True, (175, 25, 25))
         while eee:
             for _ in pg.event.get():
                 if pg.key.get_pressed()[pg.K_ESCAPE]: eee = False
                 clock.tick(FPS)
+                spit.update()
+                spit.draw(screen)
+                screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - H // 3))
+                screen.blit(text_, ((W >> 1) - (text_.get_width() >> 1), H - (H >> 2)))
+                pg.display.update()
