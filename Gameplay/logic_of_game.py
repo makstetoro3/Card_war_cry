@@ -379,6 +379,9 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                 font = pg.font.Font('../data/base.ttf', 64)
                 text = font.render(PLAYER_1.name, True, (175, 25, 25))
                 screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - (H >> 2)))
+                font = pg.font.Font('../data/base.ttf', 48)
+                text1 = font.render('нажмите пробел чтобы продолжить', True, (125, 25, 25))
+                screen.blit(text1, ((W >> 1) - (text1.get_width() >> 1), H - (H >> 3)))
 
             pg.display.update()
             clock.tick(FPS)
@@ -409,4 +412,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
             spit.draw(screen)
             screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - H // 3))
             screen.blit(text_, ((W >> 1) - (text_.get_width() >> 1), H - (H >> 2)))
+            font = pg.font.Font('../data/base.ttf', 48)
+            text1 = font.render('нажмите Esc чтобы продолжить', True, (125, 25, 25))
+            screen.blit(text1, ((W >> 1) - (text1.get_width() >> 1), H - (H >> 3)))
             pg.display.update()
