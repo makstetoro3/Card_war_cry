@@ -124,25 +124,6 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
         recalculation(PLAYER_1, PLAYER_2, hand_rect=hand_rect, sard_w=sard_w,
                       sard_h=sard_h, turn=count_turn)
 
-        # for card in list(filter(None, list(PLAYER_1.active_cards[0]))):
-        #     card.hp = card.relative_hp
-        #     card.atc = card.default_atc
-        #     if card.passive_spell: card.passive_spell(enemy=PLAYER_2, hero=PLAYER_1, me=card,
-        #                                               sard_h=sard_h, sard_w=sard_w, hand_rect=hand_rect)
-        # for card in list(filter(None, list(PLAYER_2.active_cards[0]))):
-        #     card.hp = card.relative_hp
-        #     card.atc = card.default_atc
-        #     if card.passive_spell: card.passive_spell(enemy=PLAYER_1, hero=PLAYER_2, me=card,
-        #                                               sard_h=sard_h, sard_w=sard_w, hand_rect=hand_rect)
-        # for card in list(filter(None, list(PLAYER_1.active_cards[1]))):
-        #     if card.passive_spell: card.passive_spell(enemy=PLAYER_2, hero=PLAYER_1, me=card,
-        #                                               sard_h=sard_h, sard_w=sard_w, hand_rect=hand_rect)
-        # for card in list(filter(None, list(PLAYER_2.active_cards[1]))):
-        #     if card.passive_spell: card.passive_spell(enemy=PLAYER_1, hero=PLAYER_2, me=card,
-        #                                               sard_h=sard_h, sard_w=sard_w, hand_rect=hand_rect)
-        # [card.specifications() for card in PLAYER_1.active_cards[0] if card]
-        # [card.specifications() for card in PLAYER_2.active_cards[0] if card]
-
         if count_turn <= 2:
             intermediate = [Card((sard_w, sard_h), PLAYER_1.pack.pop(0), PLAYER_1) for _ in range(5)]
             window[0] = Window(pg.Rect((W >> 1) - (card_w << 1), 0, (card_w << 2), (H >> 1)), 'начальные карты',
@@ -383,20 +364,22 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                             cem_win = 0
                             opening = False
                 else:
-                    screen.fill((127, 127, 127))
-                    if PLAYER_1.id == 1:
-                        spit_Jack.update()
-                        spit_Jack.draw(screen)
-                    else:
-                        spit_Finn.update()
-                        spit_Finn.draw(screen)
-                    font = pg.font.Font('../data/base.ttf', 64)
-                    text = font.render(PLAYER_1.name, True, (175, 25, 25))
-                    screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - (H >> 2)))
                     if pg.key.get_pressed()[pg.K_SPACE]: between = False
                 if PLAYER_2.HP < 1 or PLAYER_1.HP < 1:
                     runGame = False
                     win = PLAYER_1 if PLAYER_2.HP < 1 else PLAYER_2
+            if between:
+                screen.fill((127, 127, 127))
+                if PLAYER_1.id == 1:
+                    spit_Jack.update()
+                    spit_Jack.draw(screen)
+                else:
+                    spit_Finn.update()
+                    spit_Finn.draw(screen)
+                font = pg.font.Font('../data/base.ttf', 64)
+                text = font.render(PLAYER_1.name, True, (175, 25, 25))
+                screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - (H >> 2)))
+
             pg.display.update()
             clock.tick(FPS)
 
@@ -421,9 +404,9 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
         while eee:
             for _ in pg.event.get():
                 if pg.key.get_pressed()[pg.K_ESCAPE]: eee = False
-                clock.tick(FPS)
-                spit.update()
-                spit.draw(screen)
-                screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - H // 3))
-                screen.blit(text_, ((W >> 1) - (text_.get_width() >> 1), H - (H >> 2)))
-                pg.display.update()
+            clock.tick(FPS)
+            spit.update()
+            spit.draw(screen)
+            screen.blit(text, ((W >> 1) - (text.get_width() >> 1), H - H // 3))
+            screen.blit(text_, ((W >> 1) - (text_.get_width() >> 1), H - (H >> 2)))
+            pg.display.update()
