@@ -58,7 +58,7 @@ def recalculation(p1: Player, p2: Player, **kwargs):
 def draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, window, cur, sard_w,
               sard_h, rect_card, hp_pos, action_pos, btn_end, hp_pos_2,
               count_card_pos, size_rect_x, W, size_rect_y, cards, hand_rect,
-              cards_on_hand, cemetery, cemetery_2, card_w, H, card_h):
+              cards_on_hand, cemetery, cemetery_2, card_w, H, card_h, attack, count_turn):
     screen.blit(bg, (0, 0))  # отрисововаем фон
     if len(PLAYER_1.pack):
         screen.blit(deck_card, deck)
@@ -71,9 +71,9 @@ def draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, win
     if window: window.draw(screen)
 
     if not window:
+        surs = pg.Surface((sard_w, sard_h), pg.SRCALPHA)  # подсветка мест
+        surs.fill((255, 255, 0, 127))
         if cur and cur.status == 3:
-            surs = pg.Surface((sard_w, sard_h), pg.SRCALPHA)  # подсветка мест
-            surs.fill((255, 255, 0, 127))
             for i in range(4):
                 if not PLAYER_1.active_cards[cur.object][i]:
                     ract = rect_card[cur.object][i]
@@ -84,30 +84,41 @@ def draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, win
                                  int(sard_w * 0.05))
         elif not cur and len(car := list(filter(lambda j: j and j.status == 3, [*PLAYER_1.active_cards[0],
                                                                                 *PLAYER_1.active_cards[1]]))):
-            surs = pg.Surface((sard_w, sard_h), pg.SRCALPHA)  # подсветка мест
-            surs.fill((255, 255, 0, 127))
             for i in list(map(lambda cars: rect_card[cars.object][cars.land], car)):
                 screen.blit(surs, i)
                 pg.draw.rect(screen, (255, 255, 0), ((i.x - sard_w * 0.05, i.y - sard_w * 0.05),
                                                      (sard_w * 1.1, sard_h + sard_w * 0.1)), int(sard_w * 0.05))
         elif cur and cur.status == 0 and cur.object < 2:
-            surs = pg.Surface((sard_w, sard_h), pg.SRCALPHA)  # подсветка мест
-            surs.fill((255, 255, 0, 127))
             [screen.blit(surs, i) for i in rect_card[cur.object]]
             [pg.draw.rect(screen, (255, 255, 0),
                           ((i.x - sard_w * 0.05, i.y - sard_w * 0.05), (sard_w * 1.1, sard_h + sard_w * 0.1)),
                           int(sard_w * 0.05)) for i in rect_card[cur.object]]
         elif cur and cur.status == 0 and cur.object == 2:
-            surs = pg.Surface((card_w << 2, card_h), pg.SRCALPHA)  # подсветка мест
-            surs.fill((255, 255, 0, 127))
             screen.blit(surs, pg.Rect((W >> 1) - (card_w << 1), H >> 1, card_w << 2, card_h))
             pg.draw.rect(screen, (255, 255, 0), pg.Rect((W >> 1) - (card_w << 1), H >> 1, card_w << 2, card_h), 8)
+        if attack:
+            [screen.blit(surs, rect_card[0][i.land]) for i in list(filter(lambda cb: cb and cb.case == 0,
+                                                                          PLAYER_1.active_cards[0]))]
+            [pg.draw.rect(screen, (255, 255, 0),
+                          ((rect_card[0][i.land].x - sard_w * 0.05, rect_card[0][i.land].y - sard_w * 0.05),
+                           (sard_w * 1.1, sard_h + sard_w * 0.1)),
+                          int(sard_w * 0.05)) for i in list(filter(lambda cb: cb and cb.case == 0,
+                                                                   PLAYER_1.active_cards[0]))]
 
     pg.draw.circle(screen, (200, 0, 0), hp_pos, sard_h >> 2)  # 1 игрок
     pg.draw.circle(screen, (100, 0, 0), hp_pos, sard_h >> 2, 10)
     pg.draw.circle(screen, (0, 200, 0), action_pos, sard_h >> 2)
     pg.draw.circle(screen, (0, 100, 0), action_pos, sard_h >> 2, 10)
-    pg.draw.rect(screen, (100, 0, 0), btn_end)
+    pg.draw.rect(screen, (150, 0, 0), btn_end)
+    font = pg.font.Font('../data/base.ttf', 32)
+    if not attack and (len(
+            list(filter(lambda j: j and j.status == 2, PLAYER_1.active_cards[0]))) - len(
+        list(filter(lambda h: h and PLAYER_2.active_cards[0][h.land] and not PLAYER_2.active_cards[0][h.land].can_take,
+                    PLAYER_1.active_cards[0])))) and count_turn > 1:
+        text = font.render('напасть', True, (0, 0, 0))
+    else:
+        text = font.render('закончить ход', True, (0, 0, 0))
+    screen.blit(text, (btn_end.center[0] - (text.get_width() >> 1), btn_end.center[1] - (text.get_height() >> 1)))
     pg.draw.circle(screen, (200, 0, 0), hp_pos_2, sard_h >> 2)  # 2 игрок
     pg.draw.circle(screen, (100, 0, 0), hp_pos_2, sard_h >> 2, 10)
     font = pg.font.Font('../data/base.ttf', 48)

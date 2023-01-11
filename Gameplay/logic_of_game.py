@@ -76,7 +76,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
     draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, window[0], None, sard_w,
               sard_h, rect_card, hp_pos, action_pos, btn_end, hp_pos_2,
               count_card_pos, size_rect_x, W, size_rect_y, PLAYER_1.cards, hand_rect,
-              PLAYER_1.hand, cemetery, cemetery_2, card_w, H, card_h)
+              PLAYER_1.hand, cemetery, cemetery_2, card_w, H, card_h, False, count_turn)
 
     while not win and runGame:
         PLAYER_1, PLAYER_2 = PLAYER_2, PLAYER_1
@@ -133,8 +133,8 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
             if not cem_win and not between:
                 draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, window[0], cur, sard_w,
                           sard_h, rect_card, hp_pos, action_pos, btn_end, hp_pos_2,
-                          count_card_pos, size_rect_x, W, size_rect_y, cards, hand_rect,
-                          cards_on_hand, cemetery, cemetery_2, card_w, H, card_h)
+                          count_card_pos, size_rect_x, W, size_rect_y, cards, hand_rect, cards_on_hand,
+                          cemetery, cemetery_2, card_w, H, card_h, attack, count_turn)
 
             for event in pg.event.get():
                 if event.type == pg.KEYDOWN:
@@ -148,12 +148,15 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                             if btn_cem_2.collidepoint(pg.mouse.get_pos()) and PLAYER_2.cemetery:
                                 cem_win = 2
                             if btn_end.collidepoint(pg.mouse.get_pos()):
-                                if not attack and len(list(filter(lambda x: x and x.status == 2,
-                                                                  PLAYER_1.active_cards[0]))):
-                                    attack = True
-                                if not len(list(filter(lambda x: x and x.status == 2,
-                                                       PLAYER_1.active_cards[0]))) or count_turn < 2:
+                                if not (a := len(
+                                        list(filter(lambda j: j and j.status == 2, PLAYER_1.active_cards[0]))) - len(
+                                    list(filter(lambda h: h and PLAYER_2.active_cards[0][h.land] and not
+                                    PLAYER_2.active_cards[0][h.land].can_take,
+                                                PLAYER_1.active_cards[0])))) or count_turn < 2:
                                     timeee = False
+                                if not attack and a and count_turn > 1:
+                                    attack = True
+                                del a
                             if cur:
                                 if cur.object < 2:
                                     for i in range(4):
@@ -232,7 +235,9 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                                             sard_w=sard_w, sard_h=sard_h, turn=count_turn,
                                                             window=window)
                                             PLAYER_1.action -= cur.floop_price
-                                    elif cur.object == 0 and rect_attack.colliderect(cur.rect) and cur.status == 2:
+                                    elif cur.object == 0 and rect_attack.colliderect(cur.rect) and cur.status == 2 and \
+                                            (not PLAYER_2.active_cards[0][cur.land] or
+                                             PLAYER_2.active_cards[0][cur.land].can_take):
                                         cur.case = 1
                                         cur.status = 1
                                         if e_cur := PLAYER_2.active_cards[0][cur.land]:

@@ -1,36 +1,36 @@
 import pygame as pg
-import pygame_gui
+from pygame_gui import UI_CONFIRMATION_DIALOG_CONFIRMED, UI_BUTTON_PRESSED, elements, UIManager, windows
 
 
 def men(screen: pg.Surface, W: int, H: int) -> tuple:
-    manager = pygame_gui.UIManager((W, H))
+    manager = UIManager((W, H))
     menu_backr = pg.transform.scale(pg.image.load('../data/menu.png'), (W, H))  # Постоянная мелодия и задний фон
     sound = pg.mixer.Sound("../data/melodia.wav")
     # pg.mixer.music.load("../data/music.mp3")
     # pg.mixer.music.play(-1)
-    play = pygame_gui.elements.UIButton(
+    play = elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 160, H // 2 + 70), (300, 70)),  # Кнопки играть, обучение, колоды, выход
         text='Играть',
         manager=manager
     )
 
-    training = pygame_gui.elements.UIButton(
+    training = elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 160, H // 2 + 150), (300, 70)),
         text='Обучение',
         manager=manager
     )
 
-    exit_ = pygame_gui.elements.UIButton(
+    exit_ = elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 210, H // 2 + 310), (400, 50)),
         text='Выход',
         manager=manager
     )
 
-    Jack = pygame_gui.elements.UITextEntryLine(  # 2 поля ввода для users
+    Jack = elements.UITextEntryLine(  # 2 поля ввода для users
         relative_rect=pg.Rect((240, 170), (300, 50)), manager=manager
     )
 
-    Finn = pygame_gui.elements.UITextEntryLine(
+    Finn = elements.UITextEntryLine(
         relative_rect=pg.Rect((850, 310), (300, 50)), manager=manager
     )
     vol = 1.0
@@ -65,7 +65,7 @@ def men(screen: pg.Surface, W: int, H: int) -> tuple:
             # pg.display.update()
 
             if event.type == pg.USEREVENT:
-                if event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:  # окно выхода
+                if event.user_type == UI_CONFIRMATION_DIALOG_CONFIRMED:  # окно выхода
                     # sound.play()
                     res = 0
                     show = False
@@ -76,10 +76,10 @@ def men(screen: pg.Surface, W: int, H: int) -> tuple:
                 #     if c == 2:
                 #         pass
                 #     print(users)
-                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.user_type == UI_BUTTON_PRESSED:
                     if event.ui_element == exit_:  # окно выхода
                         # sound.play()
-                        pygame_gui.windows.UIConfirmationDialog(
+                        windows.UIConfirmationDialog(
                             rect=pg.Rect((W // 2 - 160, H // 2 + 50), (300, 200)),
                             manager=manager,
                             window_title='Подтверждение',
@@ -115,7 +115,7 @@ def hhhh(screen: pg.Surface, W: int, H: int) -> None:  # цикл для сущ�
 
 
 def my_training(screen: pg.Surface, W: int, H: int) -> int:  # 1 страница обучения
-    manager1 = pygame_gui.UIManager((W, H))
+    manager1 = UIManager((W, H))
     prim1 = pg.transform.scale(pg.image.load('../data/prim1.png'), (W // 2 + 90, H // 2 + 90))
     menu_backr1 = pg.transform.scale(pg.image.load('../data/training.png'), (W, H))
     sound1 = pg.mixer.Sound("../data/melodia.wav")
@@ -142,13 +142,13 @@ def my_training(screen: pg.Surface, W: int, H: int) -> int:  # 1 страниц�
     font = pg.font.SysFont('italic', 38)
     blit_text(menu_backr1, text, pos, font, best)
 
-    hhh = pygame_gui.elements.UIButton(
+    hhh = elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 680, H // 2 + 310), (290, 60)),
         text='<- Назад',
         manager=manager1
     )
 
-    sled = pygame_gui.elements.UIButton(
+    sled = elements.UIButton(
         relative_rect=pg.Rect((W // 2 + 390, H // 2 + 310), (290, 60)),
         text='Следующая страница ->',
         manager=manager1
@@ -182,7 +182,7 @@ def my_training(screen: pg.Surface, W: int, H: int) -> int:  # 1 страниц�
                     pg.mixer.music.set_volume(vol1)
                     print(pg.mixer.music.get_volume())
             if event1.type == pg.USEREVENT:
-                if event1.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                if event1.user_type == UI_BUTTON_PRESSED:
                     if event1.ui_element == hhh:  # кнопки назад и следующее
                         sound1.play()
                         show1 = False
@@ -211,19 +211,19 @@ def hhh1(screen: pg.Surface, W: int, H: int) -> None:  # цикл для сущ�
 
 
 def my_training1(screen: pg.Surface, W: int, H: int) -> int:
-    manager2 = pygame_gui.UIManager((W, H))
+    manager2 = UIManager((W, H))
     menu_backr2 = pg.transform.scale(pg.image.load('../data/training.png'), (W, H))
     sound2 = pg.mixer.Sound("../data/melodia.wav")  # 2 страница обучения
     prim2 = pg.transform.scale(pg.image.load('../data/prim2.png'), (W // 2 - 100, H - 100))
     prim3 = pg.transform.scale(pg.image.load('../data/prim3.png'), (W // 2 - 160, H // 2 - 60))
     best = 0
-    btn_1 = pygame_gui.elements.UIButton(
+    btn_1 = elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 680, H // 2 + 310), (290, 60)),
         text='<- Назад',
         manager=manager2
     )
 
-    sled1 = pygame_gui.elements.UIButton(
+    sled1 = elements.UIButton(
         relative_rect=pg.Rect((W // 2 + 390, H // 2 + 310), (290, 60)),
         text='Следующая страница ->',
         manager=manager2
@@ -275,7 +275,7 @@ def my_training1(screen: pg.Surface, W: int, H: int) -> int:
                     pg.mixer.music.set_volume(vol2)
                     print(pg.mixer.music.get_volume())
             if event2.type == pg.USEREVENT:
-                if event2.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                if event2.user_type == UI_BUTTON_PRESSED:
                     if event2.ui_element == btn_1:  # кнопки назад и следующее
                         sound2.play()
                         show2 = False
@@ -305,19 +305,19 @@ def hhh2(screen: pg.Surface, W: int, H: int) -> None:  # цикл для сущ�
 
 
 def my_training2(screen: pg.Surface, W: int, H: int) -> int:  # 3 страница обучения
-    manager3 = pygame_gui.UIManager((W, H))
+    manager3 = UIManager((W, H))
     menu_backr3 = pg.transform.scale(pg.image.load('../data/training.png'), (W, H))
     sound3 = pg.mixer.Sound("../data/melodia.wav")
     prim4 = pg.transform.scale(pg.image.load('../data/prim45.png'), ((W // 2) - 300, (H // 2) - 100))
     prim6 = pg.transform.scale(pg.image.load('../data/prim6.png'), ((W // 2) // 2 + 100, (H // 2) // 2 + 100))
 
-    btn_2 = pygame_gui.elements.UIButton(
+    btn_2 = elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 680, H // 2 + 310), (290, 60)),
         text='<- Назад',  # кнопки, картинки, текст
         manager=manager3
     )
 
-    per = pygame_gui.elements.UIButton(
+    per = elements.UIButton(
         relative_rect=pg.Rect((W // 2 + 390, H // 2 + 310), (290, 60)),
         text='Играть ->',
         manager=manager3
@@ -384,7 +384,7 @@ def my_training2(screen: pg.Surface, W: int, H: int) -> int:  # 3 страниц
                     pg.mixer.music.set_volume(vol3)
                     print(pg.mixer.music.get_volume())
             if event3.type == pg.USEREVENT:
-                if event3.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                if event3.user_type == UI_BUTTON_PRESSED:
                     if event3.ui_element == btn_2:
                         sound3.play()
                         show3 = False
