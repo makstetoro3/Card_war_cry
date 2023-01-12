@@ -160,10 +160,11 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                             if cur:
                                 if cur.object < 2:
                                     for i in range(4):
-                                        if not attack and len(tuple(filter(lambda lan: lan.type == cur.type,
-                                                                           PLAYER_1.land))) >= cur.price and \
+                                        if not attack and (
+                                                cur.type == 5 or len(tuple(filter(lambda lan: lan.type == cur.type,
+                                                                                  PLAYER_1.land))) >= cur.price) and \
                                                 rect_card[cur.object][i].colliderect(
-                                                        cur.rect) and (
+                                                    cur.rect) and (
                                                 (cur.status < 2 and PLAYER_1.action >= cur.price) or
                                                 (cur.status == 3 and not play[cur.object][i])):
                                             if cur.status != 3:
@@ -333,7 +334,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                                                 event.pos[1] - window[0].rect.y) and \
                                     len(window[0].cards):
                                 print(window[0].cards[0], 3)
-                                window[0].kw['spell'](window[0].cards[0], enemy=PLAYER_2, me=window[0].cards[0],
+                                window[0].kw['spell'](window[0].cards[0], enemy=PLAYER_2, me=window[0].kw['me'],
                                                       hero=PLAYER_1, hand_rect=hand_rect, sard_w=sard_w, sard_h=sard_h,
                                                       turn=count_turn, slider=slider)
                                 window[0] = None

@@ -48,7 +48,7 @@ def recalculation(p1: Player, p2: Player, **kwargs):
         card.passive_spell(enemy=p2, hero=p1, me=card, sard_w=kwargs['sard_w'],
                            sard_h=kwargs['sard_h'], hand_rect=kwargs['hand_rect'])
     for card in list(filter(lambda x: x.recalculation, p2.magic)):
-        card.passive_spell(enemy=p1, hero=p2, me=card, sard_w=kwargs['sard_w'],
+        card.passive_spell(enemy=p1, hero=p2, me=card, sard_w=kwargs['sard_w'], turn=kwargs['turn'],
                            sard_h=kwargs['sard_h'], hand_rect=kwargs['hand_rect'])
 
     [card.specifications() for card in p1.active_cards[0] if card]
@@ -94,7 +94,9 @@ def draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, win
                           ((i.x - sard_w * 0.05, i.y - sard_w * 0.05), (sard_w * 1.1, sard_h + sard_w * 0.1)),
                           int(sard_w * 0.05)) for i in rect_card[cur.object]]
         elif cur and cur.status == 0 and cur.object == 2:
-            screen.blit(surs, pg.Rect((W >> 1) - (card_w << 1), H >> 1, card_w << 2, card_h))
+            surs = pg.Surface((card_w << 2, card_h), pg.SRCALPHA)  # подсветка мест
+            surs.fill((255, 255, 0, 127))
+            screen.blit(surs, ((W >> 1) - (card_w << 1), H >> 1))
             pg.draw.rect(screen, (255, 255, 0), pg.Rect((W >> 1) - (card_w << 1), H >> 1, card_w << 2, card_h), 8)
         if attack:
             [screen.blit(surs, rect_card[0][i.land]) for i in list(filter(lambda cb: cb and cb.case == 0,
@@ -126,6 +128,8 @@ def draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, win
     screen.blit(font.render(str(PLAYER_1.action), True, (25, 25, 20)),
                 (action_pos[0] * 0.93, action_pos[1] * 0.97))
     screen.blit(font.render(str(PLAYER_2.HP), True, (25, 25, 20)), (hp_pos_2[0] * 0.98, hp_pos_2[1] * 0.83))
+    screen.blit(pg.transform.scale(pg.image.load('../cards/back.png'), (sard_w >> 1, sard_h >> 1)),
+                (count_card_pos[0] * 0.965, count_card_pos[1] * 0.65))
     screen.blit(font.render(str(len(PLAYER_2.hand)), True, (25, 25, 20)),
                 (count_card_pos[0] * 0.98, count_card_pos[1] * 0.83))
     if not window or (window.tipe == 0 or not window.kw['zona']):

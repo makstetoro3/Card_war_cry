@@ -29,7 +29,7 @@ def p3(**kwargs):
 
 
 def s4(cry: Card, **kwargs):
-    kwargs['window'][0] = Window(
+    if kwargs['hero'].hand: kwargs['window'][0] = Window(
         Rect((Info().current_w >> 1) - (kwargs['sard_h'] << 1), 0, kwargs['sard_h'] << 2,
              Info().current_h >> 1), 'выберите карту с руки', 'ок', '', 1, type=(0, 3, 5), object=(0, 1, 2),
         player=kwargs['hero'], spell=f4,
@@ -168,7 +168,7 @@ def s19(**kwargs):
         kwargs['window'][0] = Window(
             Rect((Info().current_w >> 1) - (kwargs['sard_h'] << 1), Info().current_h >> 1, kwargs['sard_h'] << 2,
                  Info().current_h >> 1), 'выберите существо', 'ок', '', 1, type=(0, 3, 5), object=[0],
-            player=kwargs['enemy'], spell=f19, lis=list(filter(None, kwargs['enemy'].active_cards[0])), zona=True)
+            player=kwargs['enemy'], spell=f19, lis=list(filter(None, kwargs['enemy'].active_cards[0])), zona=True)\
 
 
 def f19(card: Card, **kwargs):
@@ -340,11 +340,13 @@ def s43(**kwargs):
 
 
 def s44(**kwargs):
-    if any(kwargs['hero'].active_cards[0]):
+    if len(list(filter(lambda x: x and x.type == 3, kwargs['hero'].active_cards[0]))):
         kwargs['window'][0] = Window(
             Rect((Info().current_w >> 1) - (kwargs['sard_h'] << 1), 0, kwargs['sard_h'] << 2,
-                 Info().current_h >> 1), 'выберите существо', 'ок', '', 1, type=[3], object=[0],
+                 Info().current_h >> 1), 'выберите существо', 'ок', '', 1, type=[3], object=[0], me=kwargs['me'],
             player=kwargs['hero'], spell=f44, lis=list(filter(None, kwargs['hero'].active_cards[0])), zona=False)
+    else:
+        kwargs['me'].turn_use = -1
 
 
 def f44(card: Card, **kwargs):
@@ -352,7 +354,6 @@ def f44(card: Card, **kwargs):
 
 
 def p44(**kwargs):
-    print(kwargs['me'].turn_use == kwargs['turn'])
     if kwargs['me'].turn_use == kwargs['turn']:
         kwargs['me'].bav.atc += 2
     return kwargs['me'].turn_use == kwargs['turn']
