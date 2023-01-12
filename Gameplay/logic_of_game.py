@@ -160,9 +160,12 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                             if cur:
                                 if cur.object < 2:
                                     for i in range(4):
-                                        if not attack and rect_card[cur.object][i].colliderect(
-                                                cur.rect) and ((cur.status < 2 and PLAYER_1.action >= cur.price) or
-                                                               (cur.status == 3 and not play[cur.object][i])):
+                                        if not attack and len(tuple(filter(lambda lan: lan.type == cur.type,
+                                                                           PLAYER_1.land))) >= cur.price and \
+                                                rect_card[cur.object][i].colliderect(
+                                                        cur.rect) and (
+                                                (cur.status < 2 and PLAYER_1.action >= cur.price) or
+                                                (cur.status == 3 and not play[cur.object][i])):
                                             if cur.status != 3:
                                                 cards.add(cur)
                                                 PLAYER_1.action -= cur.price
