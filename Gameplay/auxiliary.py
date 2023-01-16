@@ -31,7 +31,7 @@ def recalculation(p1: Player, p2: Player, **kwargs):
                                                                          sard_h=kwargs['sard_h'],
                                                                          hand_rect=kwargs['hand_rect'])
     for card in list(filter(lambda x: x.recalculation, p1.magic)):
-        print(card)
+        print(card, 4)
         card.passive_spell(enemy=p2, hero=p1, me=card, sard_w=kwargs['sard_w'], turn=kwargs['turn'],
                            sard_h=kwargs['sard_h'], hand_rect=kwargs['hand_rect'])
     for card in list(filter(lambda x: x.recalculation, p2.magic)):

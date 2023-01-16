@@ -338,6 +338,8 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                 window[0].kw['spell'](window[0].cards[0], enemy=PLAYER_2, me=window[0].kw['me'],
                                                       hero=PLAYER_1, hand_rect=hand_rect, sard_w=sard_w, sard_h=sard_h,
                                                       turn=count_turn, slider=slider)
+                                recalculation(PLAYER_1, PLAYER_2, hand_rect=hand_rect, sard_w=sard_w,
+                                              sard_h=sard_h, turn=count_turn)
                                 window[0] = None
                             if event.button == 1 and cur:
                                 if window[0].rect.colliderect(cur.rect):

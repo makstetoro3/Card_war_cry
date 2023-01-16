@@ -339,10 +339,12 @@ def s44(**kwargs):
 
 def f44(card: Card, **kwargs):
     kwargs['me'].bav = card
+    print(kwargs['me'], card, 5)
 
 
 def p44(**kwargs):
     if kwargs['me'].turn_use == kwargs['turn']:
+        print(kwargs['me'], 6)
         kwargs['me'].bav.atc += 2
     return kwargs['me'].turn_use == kwargs['turn']
 
