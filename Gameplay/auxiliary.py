@@ -2,19 +2,6 @@ import pygame as pg
 from player import Player
 
 
-class Button:
-    def __init__(self, rect: pg.Rect, function, text=''):
-        self.rect = rect
-        self.func = function
-        self.text = text
-
-    def draw(self) -> pg.Surface:
-        res = pg.Surface(self.rect.size)
-        font = pg.font.Font('../data/base.ttf', 12)
-        res.blit(font.render(self.text, True, (0, 0, 0)), self.rect)
-        return res
-
-
 def recalculation(p1: Player, p2: Player, **kwargs):
     for card in list(filter(None, list(p1.active_cards[0]))):
         card.hp = card.relative_hp
@@ -55,6 +42,7 @@ def recalculation(p1: Player, p2: Player, **kwargs):
     [card.specifications() for card in p2.active_cards[0] if card]
 
 
+# не пытайтесь
 def draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, window, cur, sard_w,
               sard_h, rect_card, hp_pos, action_pos, btn_end, hp_pos_2,
               count_card_pos, size_rect_x, W, size_rect_y, cards, hand_rect,
@@ -145,7 +133,7 @@ def draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, win
     if PLAYER_1.cemetery: screen.blit(list(PLAYER_1.cemetery)[-1].image, cemetery)
     if PLAYER_2.cemetery: screen.blit(pg.transform.rotate(list(PLAYER_2.cemetery)[-1].image, 180),
                                       cemetery_2)
-    if cur:
+    if cur and cur.status != 3:
         screen.blit(cur.image, cur.rect)
     if pg.key.get_pressed()[pg.K_LALT]:
         [screen.blit(card.alt(pg.image.load(f'../cards/{card.id}.png'), (card_w * 3, H)),

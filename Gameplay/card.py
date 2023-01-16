@@ -143,7 +143,7 @@ class Card(pg.sprite.Sprite):  # класс Карты
         self.specifications()
         if self.hp <= 0:
             self.player.HP += self.hp
-            if self.dead_spell: self.dead_spell(enemy=kwargs['enemy'], me=kwargs['me'], hero=kwargs['hero'])
+            if self.dead_spell: self.dead_spell(enemy=kwargs['enemy'], me=self, hero=self.player)
             self.dead()
         return atc
 

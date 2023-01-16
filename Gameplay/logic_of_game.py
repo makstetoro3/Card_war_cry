@@ -13,65 +13,58 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
     size = W, H
     FPS = 30
     clock = pg.time.Clock()
-    runGame = True
-    card_h = H // 3
-    card_w = int(card_h * 0.7)  # размеры карт
-    sard_h = card_w
-    sard_w = int(sard_h * 0.72)
-    cemetery = ((W >> 1) - int(card_w * 3.7), (H >> 1))
-    deck = ((W >> 1) - int(card_w * 2.85), (H >> 1))
-    deck_2 = ((W >> 1) - int(card_w * 2.85), (H >> 1) - card_h)
-    cemetery_2 = ((W >> 1) - int(card_w * 3.7), (H >> 1) - card_h)
-    rect_attack = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) - sard_w, card_w << 2, sard_w)
-    rect_floop = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) + card_h, card_w << 2, sard_w)
-    rect_floop_building = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) + card_h - sard_w, card_w << 2, sard_w)
-    btn_end = pg.Rect((sard_h >> 2, H - (sard_w >> 1)), (card_h, sard_h >> 2))
-    size_rect_x = sard_w // 20 * 4.75 + (W >> 1)
-    size_rect_y = sard_h // 7
-    cem_win_rect = pg.Rect((W >> 1) - (sard_w << 2), 0, (sard_w << 3), H)
-    cem_win_sur = pg.Surface((sard_w << 3, H))
-    btn_cem = pg.Rect((W >> 1) - int(card_w * 3.7), H >> 1, sard_w, sard_h)
-    btn_cem_2 = pg.Rect((W >> 1) - int(card_w * 3.7), (H >> 1) - card_h, sard_w, sard_h)
-    PLAYER_1 = Player(decks.pop((r := randint(-1, 1))), name.pop(r))
-    [PLAYER_1.land.add(Land(PLAYER_1.land_id[i], ((W >> 1) - card_w * (2 - i), (H >> 1)), (card_w, card_h), 0,
-                            PLAYER_1.land_activ[i])) for i in range(4)]
-    PLAYER_2 = Player(decks.pop(0), name.pop(0))
-    [PLAYER_2.land.add(
-        Land(PLAYER_2.land_id[i], ((W >> 1) - card_w * (2 - i), (H >> 1) - card_h), (card_w, card_h), 180,
-             PLAYER_1.land_activ[i])) for i in range(4)]
+    runGame = True  # Цикл игры
+    card_h = H // 3  # высота поля
+    card_w = int(card_h * 0.7)  # ширена поля
+    sard_h = card_w  # высота карты
+    sard_w = int(sard_h * 0.72)  # ширена карты
+    cemetery = ((W >> 1) - int(card_w * 3.7), (H >> 1))  # расположение кладбища
+    deck = ((W >> 1) - int(card_w * 2.85), (H >> 1))  # расположение добора
+    deck_2 = ((W >> 1) - int(card_w * 2.85), (H >> 1) - card_h)  # расположение добора противника
+    cemetery_2 = ((W >> 1) - int(card_w * 3.7), (H >> 1) - card_h)  # расположение кладбища противника
+    rect_attack = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) - sard_w, card_w << 2,
+                          sard_w)  # rect для проверки, что карту переместили вверх
+    rect_floop = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) + card_h, card_w << 2,
+                         sard_w)  # rect для проверки, что карту переместили вниз
+    rect_floop_building = pg.Rect((W >> 1) - (card_w << 1), (H >> 1) + card_h - sard_w, card_w << 2,
+                                  sard_w)  # rect для проверки, что карту переместили вниз версия для строений
+    btn_end = pg.Rect((sard_h >> 2, H - (sard_w >> 1)), (card_h, sard_h >> 2))  # кнопка конец
+    size_rect_x = sard_w // 20 * 4.75 + (W >> 1)  # отступ для расположения кары на поле по горезонтали
+    size_rect_y = sard_h // 7  # отступ для расположения кары на поле по вертикали
+    cem_win_rect = pg.Rect((W >> 1) - (sard_w << 2), 0, (sard_w << 3), H)  # rect кладбища
+    cem_win_sur = pg.Surface((sard_w << 3, H))  # холст кладбища
+    btn_cem = pg.Rect((W >> 1) - int(card_w * 3.7), H >> 1, sard_w, sard_h)  # кнопка открытия кладбища
+    # btn_cem_2 = pg.Rect((W >> 1) - int(card_w * 3.7), (H >> 1) - card_h, sard_w, sard_h) неробит
+    PLAYER_1 = Player(decks.pop((r := randint(-1, 1))), name.pop(r))  # первый игрок
+    PLAYER_2 = Player(decks.pop(0), name.pop(0))  # второй игрок
 
-    hp_pos = ((W >> 1) - int(card_w * 3.15), H - sard_w)
-    action_pos = ((W >> 1) - int(card_w * 2.55), H - sard_w)
+    hp_pos = ((W >> 1) - int(card_w * 3.15), H - sard_w)  # позиция очков здоровья первого игрока
+    action_pos = ((W >> 1) - int(card_w * 2.55), H - sard_w)  # позиция очков действий игрока
 
-    hp_pos_2 = ((W >> 1) + int(card_w * 3.15), sard_w)
-    count_card_pos = ((W >> 1) + int(card_w * 2.55), sard_w)
+    hp_pos_2 = ((W >> 1) + int(card_w * 3.15), sard_w)  # позиция здоровья второго игрока
+    count_card_pos = ((W >> 1) + int(card_w * 2.55), sard_w)  # позиция количество карт
 
-    bg = pg.transform.scale(pg.image.load("../data/bg.png"), size)  # фон и атрибуты игры
-    deck_card = pg.transform.scale(pg.image.load("../cards/back.png"), (sard_w, sard_h))
-    btn_deck = pg.Rect(*deck, sard_w, sard_h)
-    # Расположение существ на полях
+    bg = pg.transform.scale(pg.image.load("../data/bg.png"), size)  # фон игры
+    deck_card = pg.transform.scale(pg.image.load("../cards/back.png"), (sard_w, sard_h))  # картинка добора
+    btn_deck = pg.Rect(*deck, sard_w, sard_h)  # rect кнопки добора
     rect_card = ([pg.Rect(size_rect_x + card_w * (1 - i), size_rect_y + (H >> 1), sard_w, sard_h) for i in range(4)],
                  [pg.Rect(size_rect_x + card_w * (1 - i), card_h + (H >> 1), sard_w, sard_h) for i in
-                  range(4)])
+                  range(4)])  # расположение карт первого игрока на полях
     rect_card_2 = (
         [pg.Rect(size_rect_x + card_w * (1 - i), -size_rect_y + (H >> 1) - sard_h, sard_w, sard_h) for i in range(4)],
         [pg.Rect(size_rect_x + card_w * (1 - i), -sard_h + (H >> 1) - card_h, sard_w, sard_h) for i in
-         range(4)])
-    hand = pg.Surface((int(card_w * 1.6), int(card_h * 2.1)))
+         range(4)])  # расположение карт второго игрока на полях
+    hand = pg.Surface((int(card_w * 1.6), int(card_h * 2.1)))  # расположение руки
     hand_rect = pg.Rect((W >> 1) + int(card_w * 2.1), (H >> 1) - sard_h, *hand.get_size())
     win = None
-    cem_win = 0
-    count_turn = 0
-    window = [None]
+    cem_win = 0  # открытое кладбище
+    count_turn = 0  # количество ходов
+    window = [None]  # открытое окно
 
     spit_Finn = AnimatedSprite(pg.transform.scale(pg.image.load('../data/zzzFinn.png'), (3600, 450)), 8, 1,
-                               W // 2 - 225, H // 2 - 255)
+                               W // 2 - 225, H // 2 - 255)  # анимация перехода
     spit_Jack = AnimatedSprite(pg.transform.scale(pg.image.load('../data/Jack.png'), (7752, 408)), 19, 1,
-                               W // 2 - 225, H // 2 - 255)
-    # for _ in range(5):
-    #     PLAYER_2.hand.add((a := Card((sard_w, sard_h), PLAYER_2.pack.pop(0), PLAYER_2)))
-    #     a.location(len(PLAYER_2.hand) - 1, (hand_rect.x + int(sard_w * 0.125),
-    #                                         hand_rect.y + int(sard_w * 0.125)), (sard_w, sard_h), 0)
+                               W // 2 - 225, H // 2 - 255)  # анимация перехода
 
     draw_game(screen, bg, PLAYER_1, deck_card, deck, PLAYER_2, deck_2, hand, window[0], None, sard_w,
               sard_h, rect_card, hp_pos, action_pos, btn_end, hp_pos_2,
@@ -79,20 +72,20 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
               PLAYER_1.hand, cemetery, cemetery_2, card_w, H, card_h, False, count_turn)
 
     while not win and runGame:
-        PLAYER_1, PLAYER_2 = PLAYER_2, PLAYER_1
-        cards = PLAYER_1.cards
-        play = PLAYER_1.active_cards
-        cur = None
-        opening = False
+        PLAYER_1, PLAYER_2 = PLAYER_2, PLAYER_1  # ракеровка
+        cards = PLAYER_1.cards  # для удобства
+        play = PLAYER_1.active_cards  # для удобства
+        cur = None  # карта которую перемещаем
+        opening = False  # непомню
         count_turn += 1
-        between = True
+        between = True  # переход
 
-        cards_on_hand = PLAYER_1.hand
-        slider = 0
+        cards_on_hand = PLAYER_1.hand  # для удобства
+        slider = 0  # колёсико мыши для руки
 
-        PLAYER_1.land = pg.sprite.Group()
+        PLAYER_1.land = pg.sprite.Group()  # создание полей
         PLAYER_2.land = pg.sprite.Group()
-        for i in range(4):
+        for i in range(4):  # не пытайтесь понять, я сам не помню
             PLAYER_1.land.add(
                 Land(PLAYER_1.land_id[i], ((W >> 1) - card_w * (i - 1), (H >> 1)), (card_w, card_h), 0,
                      PLAYER_1.land_activ[i]))
@@ -103,28 +96,29 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                      PLAYER_2.land_activ[i]))
             if PLAYER_2.active_cards[0][i]: PLAYER_2.active_cards[0][i].viev(rect_card_2[0][i])
             if PLAYER_2.active_cards[1][i]: PLAYER_2.active_cards[1][i].viev(rect_card_2[1][i])
-        timeee = True
-        attack = False
-        PLAYER_1.action = 2
-        if PLAYER_1.pack and count_turn > 2:
+        timeee = True  # цикл хода
+        attack = False  # фаза наподения
+        PLAYER_1.action = 2  # количество действий
+        if PLAYER_1.pack and count_turn > 2:  # выдоча карты в начале хода
             PLAYER_1.hand.add((a := Card((sard_w, sard_h), PLAYER_1.pack.pop(0), PLAYER_1)))
             a.location(len(PLAYER_1.hand) - 1, (hand_rect.x + int(sard_w * 0.125),
                                                 hand_rect.y + int(sard_w * 0.125)), (sard_w, sard_h), 0)
+            del a
 
         [a.location(n,
                     (hand_rect.x + int(sard_w * 0.125),
                      hand_rect.y + int(sard_w * 0.125)),
-                    (sard_w, sard_h), slider) for n, a in enumerate(cards_on_hand)]
+                    (sard_w, sard_h), slider) for n, a in enumerate(cards_on_hand)]  # расположение карт в руке
 
-        for card in cards:
+        for card in cards:  # возращение карт в начальную позицию
             if card and card.case != 0:
                 card.case = 0
                 card.status = 2
 
         recalculation(PLAYER_1, PLAYER_2, hand_rect=hand_rect, sard_w=sard_w,
-                      sard_h=sard_h, turn=count_turn)
+                      sard_h=sard_h, turn=count_turn)  # перерасчёт свойств карт
 
-        if count_turn <= 2:
+        if count_turn <= 2:  # выдоча первых 5 карт
             intermediate = [Card((sard_w, sard_h), PLAYER_1.pack.pop(0), PLAYER_1) for _ in range(5)]
             window[0] = Window(pg.Rect((W >> 1) - (card_w << 1), 0, (card_w << 2), (H >> 1)), 'начальные карты',
                                'принять', 'поменять', 0, *intermediate)
@@ -144,10 +138,10 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                     if event.type == pg.MOUSEBUTTONUP:
                         if event.button == 1:
                             if btn_cem.collidepoint(pg.mouse.get_pos()) and PLAYER_1.cemetery:
-                                cem_win = 1
-                            if btn_cem_2.collidepoint(pg.mouse.get_pos()) and PLAYER_2.cemetery:
-                                cem_win = 2
-                            if btn_end.collidepoint(pg.mouse.get_pos()):
+                                cem_win = 1  # открытие кладбища
+                            # if btn_cem_2.collidepoint(pg.mouse.get_pos()) and PLAYER_2.cemetery:
+                            #     cem_win = 2 неробит
+                            if btn_end.collidepoint(pg.mouse.get_pos()):  # удачи)
                                 if not (a := len(
                                         list(filter(lambda j: j and j.status == 2, PLAYER_1.active_cards[0]))) - len(
                                     list(filter(lambda h: h and PLAYER_2.active_cards[0][h.land] and not
@@ -188,6 +182,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                                 cur.status = 2  # устанавливаем новый статус карты
                                                 if cur.spawn_spell:
                                                     if cur.id == 4:
+                                                        # костыль
                                                         cur.spawn_spell(cry, enemy=PLAYER_2, me=cur, hero=PLAYER_1,
                                                                         hand_rect=hand_rect, slider=slider,
                                                                         sard_w=sard_w, sard_h=sard_h, turn=count_turn,
@@ -228,7 +223,8 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                             cur.status = 1
                                             cur.turn_use = count_turn
                                             cur.floop_spell(enemy=PLAYER_2, me=cur, hero=PLAYER_1, hand_rect=hand_rect,
-                                                            sard_w=sard_w, sard_h=sard_h, turn=count_turn)
+                                                            sard_w=sard_w, sard_h=sard_h, turn=count_turn,
+                                                            window=window)
                                             PLAYER_1.action -= cur.floop_price
                                         if cur.object == 1 and rect_floop_building.colliderect(cur.rect) and \
                                                 cur.status == 2 and cur.floop and PLAYER_1.action >= cur.floop_price:
@@ -263,6 +259,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                            (sard_w, sard_h),
                                            slider)
                                 PLAYER_1.action -= 1
+                                del a
                         if hand_rect.collidepoint(event.pos) and not cur:
                             if event.button == 4 and slider > 0:
                                 [i.scroll(1) for i in cards_on_hand]
@@ -279,6 +276,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                     cur = lis[0] if (lis := [card for card in a if card.rect.collidepoint(event.pos)
                                                              and (hand_rect.collidepoint(pg.mouse.get_pos()) or
                                                                   card.status >= 2)]) != [] else None
+                                    del a
                                 if cur:
                                     if cur.status in (0, 2, 3):
                                         # перемещение карты
@@ -300,6 +298,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                                                         hand_rect.y + int(sard_w * 0.125)),
                                                (sard_w, sard_h), 0)
                                     window[0] = None
+                                    del a
                                 elif window[0].btn_no[0].collidepoint(event.pos[0] - window[0].rect.x, event.pos[1]):
                                     PLAYER_1.pack = [*PLAYER_1.pack, *list(map(lambda car: car.id, window[0].cards))]
                                     [car.kill() for car in window[0].cards]
@@ -309,6 +308,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                         a.location(len(PLAYER_1.hand) - 1, (hand_rect.x + int(sard_w * 0.125),
                                                                             hand_rect.y + int(sard_w * 0.125)),
                                                    (sard_w, sard_h), 0)
+                                        del a
                                     window[0] = None
                     elif window[0].tipe == 1:
                         if event.type == pg.MOUSEBUTTONDOWN:
@@ -322,6 +322,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                         # сохраняем выбранную карту
                                         cur = lis[0] if (lis := [card for card in a if
                                                                  card.rect.collidepoint(event.pos)]) != [] else None
+                                        del a
                                     if cur:
                                         if cur.type in window[0].kw['type'] and cur.object in window[0].kw['object'] \
                                                 and cur.player == window[0].kw['player']:

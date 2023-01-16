@@ -9,12 +9,7 @@ from random import shuffle
 # me - объект класса Card - Карта у которой вызвали этот метод
 # hero - объект класса player - PLAYER_1
 def d1(**kwargs):
-    if card := kwargs['enemy'].active_cards[0][kwargs['me'].land]:
-        card.take(len(kwargs['enemy'].hand),
-                  enemy=kwargs['hero'], me=card,
-                  hero=kwargs['enemy'])
-    else:
-        kwargs['enemy'].HP -= len(kwargs['enemy'].hand)
+    kwargs['enemy'].HP -= len(kwargs['enemy'].hand)
 
 
 def p2(**kwargs):
@@ -23,7 +18,7 @@ def p2(**kwargs):
 
 
 def p3(**kwargs):
-    kwargs['me'].hp += (a := len(list(filter(lambda x: x.type == 0, list(kwargs['hero'].land)))))
+    kwargs['me'].hp += (a := len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['hero'].land)))))
     if a <= 3:
         kwargs['me'].atc += 1
 
@@ -57,7 +52,7 @@ def s5(**kwargs):
 
 
 def p6(**kwargs):
-    kwargs['me'].atc += (a := len(list(filter(lambda x: x.type == 0, list(kwargs['hero'].land)))))
+    kwargs['me'].atc += (a := len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['hero'].land)))))
     kwargs['me'].hp += a * 2
 
 
@@ -78,8 +73,11 @@ def s8(**kwargs):
         card.kill()
 
 
-def f9(**kwargs):  # сложно
-    ...
+def f9(**kwargs):
+    a = len(list(filter(lambda x: x.type == 0 and x.activ, kwargs['hero'].land)))
+    for n, i in enumerate(list(filter(None, kwargs['enemy'].active_cards[0]))):
+        if n + 1 <= a:
+            i.take(1, enemy=kwargs['hero'])
 
 
 def f10(**kwargs):
@@ -91,21 +89,11 @@ def p11(**kwargs):
 
 
 def p12(**kwargs):
-    if kwargs['me'].land == 0:
-        kwargs['me'].atc += len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['enemy'].land)[0:1])))
-    elif kwargs['me'].land == 3:
-        kwargs['me'].atc += len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['enemy'].land)[2:3])))
-    else:
-        kwargs['me'].atc += len(list(filter(lambda x: x.type == 0 and x.activ,
-                                            list(kwargs['enemy'].land)[kwargs['me'].land - 1:kwargs['me'].land + 1])))
+    kwargs['me'].atc += 2 if kwargs['hero'].land in (2, 3) else 1
 
 
 def s13(**kwargs):
-    if card := kwargs['enemy'].active_cards[0][kwargs['me'].land]:
-        card.take(len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['enemy'].land)))),
-                  enemy=kwargs['hero'], me=card, hero=kwargs['enemy'])
-    else:
-        kwargs['enemy'].HP -= len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['enemy'].land))))
+    kwargs['enemy'].HP -= len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['enemy'].land))))
 
 
 def p14(**kwargs):
@@ -123,7 +111,7 @@ def p14(**kwargs):
 
 def f15(**kwargs):
     from random import randint
-    card = list(kwargs['enemy'].cemetery)[randint(0, len(list(kwargs['enemy'].cemetery)))]
+    card = list(kwargs['enemy'].hand)[randint(0, len(list(kwargs['enemy'].hand)))]
     kwargs['enemy'].cards.remove(card)
     kwargs['hero'].hand.add(card)
     card.location(len(kwargs['hero'].hand) - 1, (kwargs['hand_rect'].x + int(kwargs['sard_w'] * 0.125),
@@ -172,7 +160,7 @@ def s19(**kwargs):
 
 
 def f19(card: Card, **kwargs):
-    card.take(kwargs['hero'].land_activ.count(True), enemy=kwargs['enemy'], hero=kwargs['hero'], me=kwargs['me'])
+    card.take(kwargs['hero'].land_activ.count(True), enemy=kwargs['enemy'])
 
 
 def p20(**kwargs):
@@ -186,18 +174,19 @@ def p21(**kwargs):
 
 
 def f25(**kwargs):
-    for n, i in enumerate(list(kwargs['hero'].land)):
-        if not kwargs['hero'].land_activ[n]:
-            kwargs['hero'].land_activ[n] = True
-            i.activ = True
-            i.flip()
+    for i in range(4):
+        if not list(kwargs['hero'].land)[i].activ:
+            kwargs['hero'].land_activ[i] = True
+            list(kwargs['hero'].land)[i].activ = True
+            list(kwargs['hero'].land)[i].flip()
+            break
 
 
 def f26(**kwargs):
     from random import randint
     lis = list(filter(lambda x: x.type == 5, list(kwargs['hero'].cemetery)))
     if lis:
-        card = lis[randint(0, len(lis) - 1)]
+        card = lis[randint(0, len(lis))]
         kwargs['hero'].cemetery.remove(card)
         kwargs['hero'].hand.add(card)
         card.location(len(kwargs['hero'].hand) - 1, (kwargs['hand_rect'].x + int(kwargs['sard_w'] * 0.125),
@@ -207,12 +196,11 @@ def f26(**kwargs):
 
 
 def p27(**kwargs):
-    ...
-    # card = kwargs['hero'].active_cards[0]
-    # if card[kwargs['me'].land] and kwargs['me'].land > 0 and card[kwargs['me'].land - 1]:
-    #     card[kwargs['me'].land - 1].can_take = False
-    # if card[kwargs['me'].land] and kwargs['me'].land < 3 and card[kwargs['me'].land + 1]:
-    #     card[kwargs['me'].land + 1].can_take = False
+    card = kwargs['hero'].active_cards[0]
+    if kwargs['me'].land > 0 and card[kwargs['me'].land - 1]:
+        card[kwargs['me'].land - 1].can_take = False
+    if kwargs['me'].land < 4 and card[kwargs['me'].land + 1]:
+        card[kwargs['me'].land + 1].can_take = False
 
 
 def f28(**kwargs):
@@ -232,7 +220,7 @@ def f29(**kwargs):
 
 def f30(**kwargs):
     kwargs['hero'].cemetery.remove(a := list(filter(lambda x: x.object == 2, list(kwargs['hero'].cemetery)))[0])
-    kwargs['hero'].pack = [a, *kwargs['hero'].pack]
+    kwargs['hero'].pack = [a.id, *kwargs['hero'].pack]
 
 
 def s31(**kwargs):
@@ -248,7 +236,7 @@ def f31(card: Card, **kwargs):
     if card.case != 0:
         card.case = 0
         card.status = 2
-    print(kwargs)
+    print(kwargs['me'])
 
 
 def p32(**kwargs):
@@ -284,7 +272,6 @@ def p36(**kwargs):
 
 
 def f37(**kwargs):
-
     card = kwargs['enemy'].active_cards[0][kwargs['me'].land]
     if card:
         if card.atc > 10:
@@ -337,7 +324,7 @@ def p42(**kwargs):
 
 def s43(**kwargs):
     for i in list(filter(None, kwargs['enemy'].active_cards[0])):
-        i.take(1, enemy=kwargs['hero'], hero=kwargs['enemy'], me=i)
+        i.take(1, enemy=kwargs['hero'])
 
 
 def s44(**kwargs):
