@@ -32,7 +32,7 @@ def s4(cry: Card, **kwargs):
     if kwargs['hero'].hand: kwargs['window'][0] = Window(
         Rect((Info().current_w >> 1) - (kwargs['sard_h'] << 1), 0, kwargs['sard_h'] << 2,
              Info().current_h >> 1), 'выберите карту с руки', 'ок', '', 1, type=(0, 3, 5), object=(0, 1, 2),
-        player=kwargs['hero'], spell=f4,
+        player=kwargs['hero'], spell=f4, me=kwargs['me'],
         lis=kwargs['hero'].hand, zona=False)
     card = kwargs['hero'].active_cards[0]
     if cry is not None:
@@ -71,11 +71,11 @@ def s7(**kwargs):
 def s8(**kwargs):
     if kwargs['enemy'].active_cards[0][kwargs['me'].land]:
         card = kwargs['enemy'].active_cards[0][kwargs['me'].land]
-        card.atc = card.default_atc
-        card.hp = card.default_hp
-        card.specifications()
-        kwargs['enemy'].cards.remove(card)
-        kwargs['enemy'].hand.add(card)
+        kwargs['enemy'].hand.add((a := Card((kwargs['sard_w'], kwargs['sard_h']), card.id, kwargs['hero'])))
+        a.location(len(kwargs['enemy'].hand) - 1, (kwargs['hand_rect'].x + int(kwargs['sard_w'] * 0.125),
+                                                   kwargs['hand_rect'].y + int(kwargs['sard_w'] * 0.125)),
+                   (kwargs['sard_w'], kwargs['sard_h']), 0)
+        card.kill()
 
 
 def f9(**kwargs):  # сложно
@@ -167,8 +167,8 @@ def s19(**kwargs):
     if any(kwargs['enemy'].active_cards[0]):
         kwargs['window'][0] = Window(
             Rect((Info().current_w >> 1) - (kwargs['sard_h'] << 1), Info().current_h >> 1, kwargs['sard_h'] << 2,
-                 Info().current_h >> 1), 'выберите существо', 'ок', '', 1, type=(0, 3, 5), object=[0],
-            player=kwargs['enemy'], spell=f19, lis=list(filter(None, kwargs['enemy'].active_cards[0])), zona=True)\
+                 Info().current_h >> 1), 'выберите существо', 'ок', '', 1, type=(0, 3, 5), object=[0], me=kwargs['me'],
+            player=kwargs['enemy'], spell=f19, lis=list(filter(None, kwargs['enemy'].active_cards[0])), zona=True)
 
 
 def f19(card: Card, **kwargs):
@@ -207,11 +207,12 @@ def f26(**kwargs):
 
 
 def p27(**kwargs):
-    card = kwargs['hero'].active_cards[0]
-    if card[kwargs['me'].land] and kwargs['me'].land > 0 and card[kwargs['me'].land - 1]:
-        card[kwargs['me'].land - 1].can_take = False
-    if card[kwargs['me'].land] and kwargs['me'].land < 3 and card[kwargs['me'].land + 1]:
-        card[kwargs['me'].land + 1].can_take = False
+    ...
+    # card = kwargs['hero'].active_cards[0]
+    # if card[kwargs['me'].land] and kwargs['me'].land > 0 and card[kwargs['me'].land - 1]:
+    #     card[kwargs['me'].land - 1].can_take = False
+    # if card[kwargs['me'].land] and kwargs['me'].land < 3 and card[kwargs['me'].land + 1]:
+    #     card[kwargs['me'].land + 1].can_take = False
 
 
 def f28(**kwargs):
@@ -239,7 +240,7 @@ def s31(**kwargs):
         kwargs['window'][0] = Window(
             Rect((Info().current_w >> 1) - (kwargs['sard_h'] << 1), 0, kwargs['sard_h'] << 2,
                  Info().current_h >> 1), 'выберите существо', 'ок', '', 1, type=(0, 3, 5), object=[0],
-            player=kwargs['hero'], spell=f31,
+            player=kwargs['hero'], spell=f31, me=kwargs['me'],
             lis=lis, zona=False)
 
 
@@ -256,9 +257,8 @@ def p32(**kwargs):
 
 
 def p33(**kwargs):
-    for i in kwargs['hero'].active_cards[0]:
-        if not i: continue
-        if i.case == 2: i.atc += 2
+    for i in list(filter(lambda x: x and x.case == 2, list(kwargs['hero'].active_cards[0]))):
+        i.atc += 2
 
 
 def p34(**kwargs):
@@ -284,6 +284,7 @@ def p36(**kwargs):
 
 
 def f37(**kwargs):
+
     card = kwargs['enemy'].active_cards[0][kwargs['me'].land]
     if card:
         if card.atc > 10:

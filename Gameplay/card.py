@@ -69,7 +69,6 @@ class Card(pg.sprite.Sprite):  # класс Карты
         self.zeroing()
         self.case = 0
         self.status = -1
-        self.land = -1
         self.can_take = True
         self.price = self.default_price
         if self.object in (0, 1): self.player.active_cards[self.object][self.land] = None
@@ -80,8 +79,10 @@ class Card(pg.sprite.Sprite):  # класс Карты
             self.specifications()
         if not hand:
             self.player.cards.remove(self)
+            self.player.active_cards[self.object][self.land] = None
         else:
             self.player.hand.remove(self)
+        self.land = -1
         self.player.cemetery.add(self)
 
     def set_land(self, land: pg.Rect, ID: int) -> None:
