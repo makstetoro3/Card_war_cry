@@ -115,6 +115,10 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                 card.case = 0
                 card.status = 2
 
+        for i in list(filter(lambda x: x and not x.recalculation and x.passive_spell, PLAYER_1.active_cards[0])):
+            i.passive_spell(me=i, hero=PLAYER_1, enemy=PLAYER_2, hand_rect=hand_rect, sard_w=sard_w,
+                            sard_h=sard_h, turn=count_turn)
+
         recalculation(PLAYER_1, PLAYER_2, hand_rect=hand_rect, sard_w=sard_w,
                       sard_h=sard_h, turn=count_turn)  # перерасчёт свойств карт
 
