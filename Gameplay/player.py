@@ -9,7 +9,7 @@ class Player:
         self.HP = 25
         self.action = 2
         self.pack = list(deck[1])
-        shuffle(self.pack)
+        # shuffle(self.pack)
         self.land_id = deck[0]
         self.land = pg.sprite.Group()
         self.hand = pg.sprite.Group()

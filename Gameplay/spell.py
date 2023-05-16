@@ -13,8 +13,8 @@ def d1(**kwargs):
 
 
 def p2(**kwargs):
-    kwargs['me'].hp += len(list(filter(lambda x: x.type == 0, list(kwargs['enemy'].land))))
-    kwargs['me'].hp += len(list(filter(lambda x: x.type == 0, list(kwargs['hero'].land))))
+    kwargs['me'].hp += len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['enemy'].land))))
+    kwargs['me'].hp += len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['hero'].land))))
 
 
 def p3(**kwargs):
@@ -30,7 +30,7 @@ def s4(cry: Card, **kwargs):
         player=kwargs['hero'], spell=f4, me=kwargs['me'],
         lis=kwargs['hero'].hand, zona=False)
     card = kwargs['hero'].active_cards[0]
-    if cry is not None:
+    if cry:
         if kwargs['me'].land > 0 and not card[kwargs['me'].land - 1]:
             cry.set_land(kwargs['rect_card'][0][kwargs['me'].land - 1].copy(), kwargs['me'].land - 1)
         elif kwargs['me'].land < 3 and not card[kwargs['me'].land + 1]:
@@ -74,10 +74,12 @@ def s8(**kwargs):
 
 
 def f9(**kwargs):
-    a = len(list(filter(lambda x: x.type == 0 and x.activ, kwargs['hero'].land)))
-    for n, i in enumerate(list(filter(None, kwargs['enemy'].active_cards[0]))):
-        if n + 1 <= a:
-            i.take(1, enemy=kwargs['hero'])
+    a = len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['hero'].land))))
+    for n, i in enumerate(b := (list(filter(None, kwargs['enemy'].active_cards[0])))):
+        print(b)
+        if n == a:
+            return
+        i.take(1, enemy=kwargs['hero'])
 
 
 def f10(**kwargs):
@@ -85,28 +87,30 @@ def f10(**kwargs):
 
 
 def p11(**kwargs):
-    kwargs['me'].atc += len(list(filter(lambda x: x and x.type == 0, list(kwargs['enemy'].active_cards[0])))) - 1
+    kwargs['me'].atc += len(list(filter(lambda x: x and x.type == 0, kwargs['hero'].active_cards[0])))
 
 
 def p12(**kwargs):
-    kwargs['me'].atc += 2 if kwargs['hero'].land in (2, 3) else 1
+    kwargs['me'].atc += 2 if kwargs['me'].land in (1, 2) else 1
 
 
 def s13(**kwargs):
-    kwargs['enemy'].HP -= len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['enemy'].land))))
+    kwargs['enemy'].HP -= len(list(filter(lambda x: x.type == 0 and x.activ, list(kwargs['hero'].land))))
 
 
 def p14(**kwargs):
-    kwargs['hero'].hand.add((a := Card((kwargs['sard_w'], kwargs['sard_h']), kwargs['hero'].pack.pop(0),
-                                       kwargs['hero'])))
-    a.location(len(kwargs['hero'].hand) - 1, (kwargs['hand_rect'].x + int(kwargs['sard_w'] * 0.125),
-                                              kwargs['hand_rect'].y + int(kwargs['sard_w'] * 0.125)),
-               (kwargs['sard_w'], kwargs['sard_h']), 0)
-    kwargs['enemy'].hand.add(
-        (a := Card((kwargs['sard_w'], kwargs['sard_h']), kwargs['enemy'].pack.pop(0), kwargs['enemy'])))
-    a.location(len(kwargs['enemy'].hand) - 1, (kwargs['hand_rect'].x + int(kwargs['sard_w'] * 0.125),
-                                               kwargs['hand_rect'].y + int(kwargs['sard_w'] * 0.125)),
-               (kwargs['sard_w'], kwargs['sard_h']), 0)
+    if kwargs['hero'].pack:
+        kwargs['hero'].hand.add((a := Card((kwargs['sard_w'], kwargs['sard_h']), kwargs['hero'].pack.pop(0),
+                                           kwargs['hero'])))
+        a.location(len(kwargs['hero'].hand) - 1, (kwargs['hand_rect'].x + int(kwargs['sard_w'] * 0.125),
+                                                  kwargs['hand_rect'].y + int(kwargs['sard_w'] * 0.125)),
+                   (kwargs['sard_w'], kwargs['sard_h']), 0)
+    if kwargs['enemy'].pack:
+        kwargs['enemy'].hand.add(
+            (a := Card((kwargs['sard_w'], kwargs['sard_h']), kwargs['enemy'].pack.pop(0), kwargs['enemy'])))
+        a.location(len(kwargs['enemy'].hand) - 1, (kwargs['hand_rect'].x + int(kwargs['sard_w'] * 0.125),
+                                                   kwargs['hand_rect'].y + int(kwargs['sard_w'] * 0.125)),
+                   (kwargs['sard_w'], kwargs['sard_h']), 0)
 
 
 def f15(**kwargs):
@@ -219,8 +223,9 @@ def f29(**kwargs):
 
 
 def f30(**kwargs):
-    kwargs['hero'].cemetery.remove(a := list(filter(lambda x: x.object == 2, list(kwargs['hero'].cemetery)))[0])
-    kwargs['hero'].pack = [a.id, *kwargs['hero'].pack]
+    if kwargs['hero'].cemetery:
+        kwargs['hero'].cemetery.remove(a := list(filter(lambda x: x.object == 2, list(kwargs['hero'].cemetery)))[0])
+        kwargs['hero'].pack = [a.id, *kwargs['hero'].pack]
 
 
 def s31(**kwargs):
@@ -300,7 +305,7 @@ def f39(**kwargs):
 
 
 def f40(**kwargs):
-    if kwargs['enemy'].land_activ[kwargs['me'].land]:
+    if kwargs['enemy'].land_activ[kwargs['me'].land] and kwargs['enemy'].land[kwargs['me'].land].type == 0:
         kwargs['enemy'].land_activ[kwargs['me'].land] = False
         list(kwargs['enemy'].land)[kwargs['me'].land].activ = False
         list(kwargs['enemy'].land)[kwargs['me'].land].flip()

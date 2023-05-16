@@ -144,7 +144,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                             if btn_cem.collidepoint(pg.mouse.get_pos()) and PLAYER_1.cemetery:
                                 cem_win = 1  # открытие кладбища
                             # if btn_cem_2.collidepoint(pg.mouse.get_pos()) and PLAYER_2.cemetery:
-                            #     cem_win = 2 неробит
+                            #     cem_win = 2 не робит
                             if btn_end.collidepoint(pg.mouse.get_pos()):  # удачи)
                                 if not (a := len(
                                         list(filter(lambda j: j and j.status == 2, PLAYER_1.active_cards[0]))) - len(
@@ -165,7 +165,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                                     cur.rect) and (
                                                 (cur.status < 2 and PLAYER_1.action >= cur.price) or
                                                 (cur.status == 3 and not play[cur.object][i])):
-                                            if cur.status != 3:
+                                            if cur.status != 3 and (len(cards_on_hand) > 1 or cur.id != 4):
                                                 cards.add(cur)
                                                 PLAYER_1.action -= cur.price
                                                 cards_on_hand.remove(cur)
@@ -174,6 +174,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                                              hand_rect.y + int(sard_w * 0.125)),
                                                             (sard_w, sard_h), slider) for n, a in
                                                  enumerate(cards_on_hand)]
+                                                cry = None
                                                 if play[cur.object][i]:
                                                     # сброс
                                                     if cur.id != 4:
@@ -182,6 +183,7 @@ def pvp(screen: pg.Surface, W: int, H: int, decks: list, name: list) -> None:
                                                         play[cur.object][i].dead()
                                                     else:
                                                         cry = play[cur.object][i]
+                                                        play[cur.object][i].land = -1
                                                 cur.set_land(rect_card[cur.object][i].copy(), i)  # перемещаем карту
                                                 cur.status = 2  # устанавливаем новый статус карты
                                                 if cur.spawn_spell:
