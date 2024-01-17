@@ -4,7 +4,7 @@ from pygame_gui import UI_CONFIRMATION_DIALOG_CONFIRMED, UI_BUTTON_PRESSED, elem
 
 def men(screen: pg.Surface, W: int, H: int) -> tuple:
     manager = UIManager((W, H))
-    menu_backr = pg.transform.scale(pg.image.load('../data/menu.png'), (W, H))  # Постоянная мелодия и задний фон
+    menu_backr = pg.transform.scale(pg.image.load('data/menu.png'), (W, H))  # Постоянная мелодия и задний фон
     play = elements.UIButton(
         relative_rect=pg.Rect((W // 2 - 160, H // 2 + 70), (300, 70)),  # Кнопки играть, обучение, колоды, выход
         text='Играть',
